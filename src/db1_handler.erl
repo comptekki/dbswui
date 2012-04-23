@@ -15,7 +15,7 @@ init({_Any, http}, Req, []) ->
 handle(Req0, State) ->
 	{[ServerPath], Req1} = cowboy_http_req:path(Req0),
 	{Client_IP, Req} = cowboy_http_req:peer_addr(Req1),
-	io:format("~n~nIP: ~p - Date/Time: ~p~n",[Client_IP, calendar:local_time()]),
+	io:format("~nIP: ~p - Date/Time: ~p~n",[Client_IP, calendar:local_time()]),
 	{S, _Req} = cowboy_http_req:qs_val(<<"s">>,Req),
 	{Table, _Req} = cowboy_http_req:qs_val(<<"tablename">>,Req),
 	{ok, Req2} =
@@ -663,20 +663,5 @@ escape13(Data) ->
 
 %
 
-title(<<"title">>) ->
-	<<"Title">>;
-title(<<"author_editor">>) ->
-	<<"Author Editor">>;
-title(<<"date_of_publication">>) ->
-	<<"Date of Publication">>;
-title(<<"publisher">>) ->
-	<<"Publisher">>;
-title(<<"key_words">>) ->
-	<<"Key Words">>;
-title(<<"notes">>) ->
-	<<"Notes">>;
-title(<<"valuation">>) ->
-	<<"Valuation">>;
-title(<<"purchase_price">>) ->
-	<<"Purchase Price">>.
-
+title(Title) ->
+	?TITLES.
