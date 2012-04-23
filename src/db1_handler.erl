@@ -215,7 +215,7 @@ $(document).ready(function() {
 
 setfields() ->
 	<<"' + '&rpp=' + $('#range_input').val() + '&offset=' + $('#offset').val() + ",
-    (setf(get_columns()))/binary>>.
+    (setf(?TABLE))/binary>>.
 
 setf([Col|Cols]) ->
 	<<" '&",Col/binary,"=' + encodeURIComponent($('#",Col/binary,"').val()) + ",
@@ -264,7 +264,7 @@ ajfun0 = function() {
 js3b() ->
 <<"
 <script type='text/javascript'>",
-(js3b2(get_columns()))/binary,
+(js3b2(?TABLE))/binary,
 "</script>">>.
 
 js3b2([Col|Rest]) ->
@@ -343,7 +343,7 @@ table2(RowsPerPage, ServerPath, Fields, S, Result, Res2) ->
 		<<"0">> ->
 			<<"<br /><table style='background-color:black; color:yellow;'><tr><td>No matches found...</td></tr></table>">>;
 		_ ->
-			Headers=get_columns(),
+			Headers = ?TABLE,
 			Nav= <<"
 <div class='nav'>
 <table>
@@ -546,7 +546,7 @@ mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
 <tr>
 <td class='srch'>Field Search</td>
 ",
-(mk_input_fields(get_columns()))/binary,
+(mk_input_fields(?TABLE))/binary,
 "
 </tr>
 </table>
@@ -661,9 +661,8 @@ escape12(Data) ->
 escape13(Data) ->
 	re:replace(Data,"\\\\","\\\\\\\\",[{return,list},global]).
 
-get_columns() -> %%Table) ->
-	[<<"title">>, <<"author_editor">>, <<"date_of_publication">>, <<"publisher">>, <<"key_words">>, <<"notes">>, <<"valuation">>, <<"purchase_price">>].
-	
+%
+
 title(<<"title">>) ->
 	<<"Title">>;
 title(<<"author_editor">>) ->
