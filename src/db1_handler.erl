@@ -69,8 +69,8 @@ select_fields([]) ->
 %
 
 select_pattern(Name) ->
-	S="select * from " ++ Name ++ binary_to_list(?ORDER_BY),
-	io:format("~n~s",[S]),
+	S= <<"select * from ", Name/binary, ?ORDER_BY>>,
+	io:format("~p~n",[S]),
 	S.
 
 % postgresql commands:	
@@ -84,8 +84,8 @@ select_pattern(Name, Ls, S) ->
 		<<"1">> -> Op = <<" or ">>
 	end,
 	S2=expand_cols(Ls, Op),
-	S3= <<"select * from ",Name/binary, " where ", (sandor(S2))/binary, ?ORDERBY>>,
-	io:format("~n~s",[S3]),
+	S3= <<"select * from ", Name/binary, " where ", (sandor(S2))/binary, ?ORDER_BY>>,
+	io:format("~p~n",[S3]),
 	S3.
 
 expand_cols([Col|Rest], Op) ->
