@@ -69,7 +69,7 @@ select_fields([]) ->
 %
 
 select_pattern(Name) ->
-	S="select * from " ++ Name ++ " order by title",
+	S="select * from " ++ Name ++ binary_to_list(?ORDER_BY),
 	io:format("~n~s",[S]),
 	S.
 
@@ -84,7 +84,7 @@ select_pattern(Name, Ls, S) ->
 		<<"1">> -> Op = <<" or ">>
 	end,
 	S2=expand_cols(Ls, Op),
-	S3= <<"select * from ",Name/binary, " where ", (sandor(S2))/binary, " order by title">>,
+	S3= <<"select * from ",Name/binary, " where ", (sandor(S2))/binary, ?ORDERBY>>,
 	io:format("~n~s",[S3]),
 	S3.
 
@@ -338,7 +338,6 @@ table(Sp, SpOffset, RowsPerPage, ServerPath, Fields, S) ->
 %
 
 table2(RowsPerPage, ServerPath, Fields, S, Result, Res2) ->
-%io:format("~n ~p ~n",[s_fields(S)]),
 	Count=list_to_binary(integer_to_list(length(Res2))),
 	case Count of
 		<<"0">> ->
