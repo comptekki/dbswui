@@ -133,7 +133,6 @@ return_top_page(ServerPath, Hdr) ->
 			rttp_main(ServerPath, Hdr);
 		_ ->
 			<<(get_top())/binary,
-			   (rttp_css())/binary,
 			   (rttp_main(ServerPath, Hdr))/binary>>
 	end.
 %
@@ -142,33 +141,10 @@ get_top() ->
 <<"<html>
 <head>
 <title>test</title>
-  <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/> 
-  <link rel='icon' href='/static/favicon.ico' type='image/x-icon' />
-">>.
 
-%
-
-rttp_css() ->
-	<<"
-<style type='text/css'>
-body {background-color: #aaaaaa;}
-table {border-collapse: collapse; border: solid black 1px; background-color: #cccccc;}
-p {padding: 5px; font-weight: bold;}
-input[type=text] {vertical-align: bottom; width: 100%; font-size: 80%;}
-input[type=checkbox] {vertical-align: top; font-size: 80%;}
-span.attribute {vertical-align: top; font-size: 80%;}
-th {padding: 5px; border: solid black 1px;}
-td {padding: 5px; border: solid black 1px;}
-span.hl {padding: 0 2px 0 2px; /* margin: 0 2px 0 2px; */ background-color:yellow; /*color:white;*/}
-#fview, #click_qsview {display:none;}
-.click {padding: 3px 3px 3px 3px; background-color: #dddddd; color:green; /*width: 245px;*/ }
-.click A:link, A:visited {text-decoration: none}
-.click A:hover {padding: 0 2px 0 2px; background-color: #eeffee;}
-.rows {background-color: #cccccc;}
-.record {width:700px; margin:5px; background-color: #dddddd;}
-.srch {width:30px;}
-</style>
-">>.
+<meta http-equiv='Content-Type' content='text/html;charset=utf-8'/> 
+<link rel='icon' href='/static/favicon.ico' type='image/x-icon' />
+<link href='/static/db.css' media='screen' rel='stylesheet' type='text/css' />">>.
 
 %
 
