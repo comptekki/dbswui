@@ -15,7 +15,7 @@ start(_Type, _Args) ->
 		 {'_',
 		  [
 		   {[<<"db1">>], db1_handler, []},
-		   [<<"db1">>,<<"edit">>], db1_edit_handler, []},
+		   {[<<"db1">>,<<"edit">>], db1_edit_handler, []},
 		   {[<<"static">>,'...'],cowboy_http_static,[{directory, "static/"}]},
 		   {'_', default_handler, []}
 		  ]
