@@ -144,7 +144,8 @@ get_top() ->
 
 <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/> 
 <link rel='icon' href='/static/favicon.ico' type='image/x-icon' />
-<link href='/static/db.css' media='screen' rel='stylesheet' type='text/css' />">>.
+<link href='/static/db.css' media='screen' rel='stylesheet' type='text/css' />
+">>.
 
 %
 
