@@ -660,7 +660,7 @@ escape12(Data) ->
 	re:replace(escape13(Data),"\\|","\\\\|",[{return,list},global]).
 
 escape13(Data) ->
-	re:replace(Data,"\\\\","\\\\\\\\|",[{return,list},global]).
+	re:replace(Data,"\\\\","\\\\\\\\",[{return,list},global]).
 
 get_columns() -> %%Table) ->
 	[<<"title">>, <<"author_editor">>, <<"date_of_publication">>, <<"publisher">>, <<"key_words">>, <<"notes">>, <<"valuation">>, <<"purchase_price">>].
