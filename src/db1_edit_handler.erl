@@ -24,7 +24,7 @@ fire_wall(Req) ->
 		off -> allow
 	end.
 
-%%
+%
 
 fwDenyMessage(Req, State) ->
 	{ok, Req2} = cowboy_http_req:reply(200, [{'Content-Type', <<"text/html">>}],
@@ -41,7 +41,7 @@ Access Denied!
 </html>">>, Req),
 {ok, Req2, State}.
 
-%%
+%
 
 login_is() ->
 	{ok, [_,_,{UPOnOff,UnamePasswds},_,_]}=file:consult(?CONF),
@@ -50,7 +50,7 @@ login_is() ->
 		off -> off
 	end.
 
-%%
+%
 
 checkCreds(UnamePasswds, Req, _State) ->
 	{ok, [_,_,_,_,{CookieName}]}=file:consult(?CONF),
@@ -61,6 +61,8 @@ checkCreds(UnamePasswds, Req, _State) ->
 		<<"true">> ->
 			{pass,Req}
 	end.
+
+%
 
 checkPost(UnamePasswds,Req) ->
 	case Req#http_req.method of
@@ -76,6 +78,7 @@ checkPost(UnamePasswds,Req) ->
 			{fail,Req}
 	end.
 
+%
 
 checkCreds([{Uname,Passwd}|UnamePasswds],Uarg,Parg,Req) ->
     case Uname of
@@ -94,7 +97,7 @@ checkCreds([{Uname,Passwd}|UnamePasswds],Uarg,Parg,Req) ->
 checkCreds([],_Uarg,_Parg,Req) ->
 	{fail,Req}.
 
-%%
+%
 
 app_login(Req, State) ->
 	case fire_wall(Req) of
