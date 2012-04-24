@@ -169,18 +169,19 @@ handle(Req, State) ->
 							app_login(Req0, State);
 						pass ->
 							app_front_end(Req0, State)
-								end;
+					end;
 				false -> 
 					case Creds of
 						off ->
 							app_front_end(Req, State);
 						_  ->
 							app_login(Req, State)
-								end
-						end;
+					end
+			end;
 		deny ->
 			fwDenyMessage(Req, State)
-				end.
+	end.
+
 %
 
 app_front_end(Req0, State) ->
