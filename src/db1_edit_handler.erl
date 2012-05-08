@@ -112,6 +112,7 @@ app_login(Req, State) ->
 <meta Http-Equiv='Cache-Control' Content='no-cache'>
 <meta Http-Equiv='Pragma' Content='no-cache'>
 <meta Http-Equiv='Expires' Content='0'>
+<META HTTP-EQUIV='EXPIRES' CONTENT='Mon, 30 Apr 2012 00:00:01 GMT'>
 
 <link rel='icon' href='/static/favicon.ico' type='image/x-icon' />
 <link href='/static/db.css' media='screen' rel='stylesheet' type='text/css' />
@@ -203,13 +204,24 @@ app_front_end(Req0, State) ->
 					  {FieldsAll, _Req} = cowboy_http_req:qs_vals(Req),
 					  [_,_,_,_|RawFields] = FieldsAll,
 					  Fields=select_fields(RawFields),
-					  Sp =
-						  case Fields of
-							  [] -> (catch select_pattern(Table));
-							  _  -> (catch select_pattern(Table, Fields, S))
-						  end,
-					  SpOffset = <<Sp/binary, " offset ", Offset/binary, " limit ", Rpp/binary>>,
-					  <<(table(Sp, SpOffset, Rpp, ServerPath, Fields, S))/binary>>;
+					  case S of
+						  <<"2">> ->
+							  Ep=update_pattern(Table, Fields),
+							  case do_update(Ep) of
+								  {_, error} ->
+									  <<"Error Saving Data!">>;
+								  _ ->
+									  <<"Data Saved!">>
+							  end;
+						  _ ->
+							  Sp =
+								  case Fields of
+									  [] -> (catch select_pattern(Table));
+									  _  -> (catch select_pattern(Table, Fields, S))
+								  end,
+							  SpOffset = <<Sp/binary, " offset ", Offset/binary, " limit ", Rpp/binary>>,
+							  <<(table(Sp, SpOffset, Rpp, ServerPath, Fields, S))/binary>>
+					  end;
 				  _ ->
 					  case S of
 						  <<"1">> ->
@@ -225,6 +237,49 @@ app_front_end(Req0, State) ->
 	
 terminate(_Req, _State) ->
 	ok.
+
+%
+
+update_pattern(Table, [{Field, Val}|Fields]) ->
+	{Rfields, Rvals} = update_pattern(Fields),
+	<<"update ", Table/binary, " set (", Rfields/binary, ") = (", Rvals/binary, ") where ", Field/binary, "=", Val/binary>>.
+
+%
+
+update_pattern([{Field, Val}|Fields]) ->
+	update_pattern(Fields, <<Field/binary>>, <<"E'", (escape0(Val))/binary, "'">>).
+
+update_pattern([{Field, Val}|Fields], Accf, Accv) ->
+	case Val of
+		<<>> ->
+			update_pattern(Fields, <<Accf/binary, ",", Field/binary>>, <<Accv/binary, ", ''">>);
+		_ ->
+			update_pattern(Fields, <<Accf/binary, ",", Field/binary>>, <<Accv/binary, ", E'", (escape0(Val))/binary, "'">>)
+	end;
+update_pattern([], Accf, Accv) ->
+	{Accf, Accv}.
+
+do_update(S) ->
+	io:format("~p~n",[S]),
+	case pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}]) of
+		{error,_} ->
+			{S, error};
+		{ok, Db} -> 
+			case pgsql:squery(Db, S) of
+				{error,Error} ->
+					io:format("update error: ~p~n", [Error]),
+					{S, error};
+				{_,Res} ->
+					pgsql:close(Db),
+					{S, Res}
+			end
+	end.
+
+%
+
+escape0(S) ->
+	S1=re:replace(S,"\\\\","\\\\\\\\",[{return,binary}, global]),
+	re:replace(S1,"'","\\\\'",[{return,binary}, global]).
 
 % Get the fields to be part of the select
 
@@ -332,10 +387,13 @@ get_top() ->
 rttp_main(ServerPath, Hdr) ->
 	  <<"
 <script type='text/javascript' src='",?JQUERY,"'></script>
-
+<script type='text/javascript' src='/static/jquery.simplemodal.1.4.2.min.js'></script>
 <script type='text/javascript'>
 
+var view=true;
+
 $(document).ready(function() {
+
     $('#click_fview').click(function() {
         $('#s').val(0);
         $('#fview').show('slow');
@@ -344,6 +402,7 @@ $(document).ready(function() {
         $('#click_fview').hide('slow');
         $('#title').focus();
         ajfun0();
+        view=false
     }); 
 
     $('#click_qsview').click(function() {
@@ -354,18 +413,22 @@ $(document).ready(function() {
         $('#click_fview').show('slow');
         $('#single_input_db').focus();
         ajfun1();
+        view=true
     });
 
     $('#single_input_db').focus();
-    ajfun1();
+    ajfun1()
 })
 </script>
 
 </head>
-<body>  
-",	  
+<body>
+<div id='wrapper'>
+",
 (mk_table_tab(<<"10">>, <<"0">>, ServerPath, Hdr))/binary,
-"</body>
+"
+</div>
+</body>
 </html>">>.
 
 %
@@ -406,7 +469,6 @@ ajfun0 = function() {
 		data: 'tablename=", ?DB/binary, "&s=0",(setfields())/binary,",
 		success: function(data) {
 			    $('#data').html(arguments[2].responseText);
-//			$('#data').html(data) 
 		},
 		error:function(XMLHttpRequest, textStatus, errorThrown) {
 			alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
@@ -436,7 +498,7 @@ function() {
 });					
 ",(js3b2(Rest))/binary>>;
 js3b2([]) ->
-	<<"">>.
+	<<>>.
 
 %
 		
@@ -586,7 +648,7 @@ $(document).ready(function() {
 </table>
 <div>",
 Nav/binary,
-(mk_tab(Headers, Result, Fields))/binary,
+(mk_tab(Headers, Result, Fields, ServerPath))/binary,
 Nav/binary,
 "
 
@@ -674,9 +736,10 @@ mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
 <input id='range_input' type='hidden' value='",RowsPerPage/binary,"'>
 <input id='offset' type='hidden' value='",Offset/binary,"'>",
 	  (case Hdr of
-			<<"1">> -> <<"">>;
+			<<"1">> -> <<>>;
 			_ ->
 				<<"
+<a href='logout' id='logout'>logout</a>
 <table>
 <tr>
 <td colspan='9'> 
@@ -713,7 +776,7 @@ mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
 <tr>
 <td class='srch'>Quick Search</td>
 <td colspan='8'>
-<input id='single_input_db' name='single_input_db' style='width:500px;' maxlength='",?MAX_LENB/binary,"'>
+<input id='single_input_db' name='single_input_db' style='width:500px;' maxlength='", ?MAX_LENB/binary,"'>
 </td>
 </tr>
 </table>
@@ -726,37 +789,178 @@ mk_input_fields([Col|Cols]) ->
                 <<"<td><span class='attribute'>", (title(Col))/binary,"</span>
 <input id='",Col/binary,"' type='text' name='", Col/binary, "' maxlength='30'></td>",(mk_input_fields(Cols))/binary>>;
 mk_input_fields([]) ->
-	<<"">>.
+	<<>>.
     
 % Build the result table.
 
-mk_tab(Headers, Rows, Fields) ->
+mk_tab(Headers, Rows, Fields, ServerPath) ->
 	Hdrs= [<<"<th style='width:175px; text-align:right; vertical-align:top;'>", (title(X))/binary, "</th>">> || X <- Headers],
     <<"<div>",
 %      <table class='data'>
 %     ",
-         (mk_tab2(Rows,Hdrs,Fields))/binary,
+         (mk_tab2(Rows,Hdrs,Fields, ServerPath))/binary,
 %        "
 %      </table>
    "</div>">>.
 
-mk_tab2([RowTuple|Rows],Hdrs,Fields) ->
-	[_|Row]=tuple_to_list(RowTuple),
+mk_tab2([RowTuple|Rows],Hdrs,Fields, ServerPath) ->
+	[Id|Row]=tuple_to_list(RowTuple),
+%	[{Field,_Srch}|_Rest]=Fields,
 	<<"
-<table class='record datat'>",
-	  (mk_tab3(Row,Hdrs,Fields))/binary,
+<script>
+$(document).ready(function(){
+    $('#h", Id/binary, "').click(function() {
+        $('#t", Id/binary, "').modal({escClose:false, closeClass:'modal-cancel', focus:false, opacity:80, overlayCss: {backgroundColor:'#555'}, persist:true});
+        $('#s", Id/binary, "').show();
+        $('#c", Id/binary, "').show();
+",
+(jsedit(Id,Fields))/binary,
+"
+    });
+
+    $('#s", Id/binary, "').click(function() {
+
+        $('#s", Id/binary, "').hide();
+        $('#c", Id/binary, "').hide();
+",
+(jsedit2(Id, Fields))/binary,
+"
+	$.ajax({
+		url: '/",ServerPath/binary,"',
+		type: 'GET',
+		data: 'tablename=", ?DB/binary, "&s=2", (setfields2(Id, Fields))/binary, ",
+		success: function(data) {
+            if (view)
+                ajfun1()
+            else 
+                ajfun0();
+
+//            alert(arguments[2].responseText);
+
+//$('#data').html(arguments[2].responseText);
+
+		},
+		error:function(XMLHttpRequest, textStatus, errorThrown) {
+			alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
+		}
+  	});
+
+
+        $('#c", Id/binary, "').click();
+    });
+
+    $('#c", Id/binary, "').click(function() {
+        $('#s", Id/binary, "').hide();
+        $('#c", Id/binary, "').hide();
+",
+(jsedit3(Id,Fields))/binary,
+"
+//        $('#c", Id/binary, "').click();
+    })
+
+})
+</script>
+
+<table id='t", Id/binary, "' class='record datat'>",
+	  (mk_tab3(1,Id,Row,Hdrs,Fields))/binary,
 	  "</table>
 ",
-	  (mk_tab2(Rows,Hdrs,Fields))/binary>>;
-mk_tab2([],_Hdrs,_Fields) ->
-	<<"">>.
+	  (mk_tab2(Rows,Hdrs,Fields, ServerPath))/binary>>;
+mk_tab2([],_Hdrs,_Fields, _ServerPath) ->
+	<<>>.
+%
 
-mk_tab3([Item|RestRow],[Hdr|RestHdrs],[FieldSrch|Fields]) ->
-	<<"<tr>",Hdr/binary,"<td>", (hl(Item,FieldSrch))/binary,"</td></tr>",(mk_tab3(RestRow,RestHdrs,Fields))/binary>>;
-mk_tab3([],_Hdrs,_Fields) ->
-	<<"">>.
+setfields2(Id, Fields) ->
+	<<"&rpp=0&offset=0&id=", Id/binary, "' + ",
+    (setf2(Id, Fields))/binary>>.
 
-hl(Item,{_FieldName,FsrchData}) ->
+setf2(Id, [{Field,_Srch}|Fields]) ->
+	<<" '&",Field/binary,"=' + encodeURIComponent($('#i_", Field/binary, "_", Id/binary, "').val()) + ",
+	(setf2(Id, Fields))/binary>>;
+setf2(_Id, []) ->
+	<<"''">>.
+
+%
+
+jsedit(Id, [{Field,_Srch}|Fields]) ->
+	<<"
+       $('#d_", Field/binary, "_", Id/binary, "').hide();
+       $('#i_", Field/binary, "_", Id/binary, "').show();
+",
+	  (jsedit(Id,Fields))/binary>>;
+jsedit(_Id,[]) ->
+	<<>>.
+
+%
+
+jsedit2(Id,[{Field,_Srch}|Fields]) ->
+	<<"
+       $('#i_", Field/binary, "_", Id/binary, "').hide();
+       $('#d_", Field/binary, "_", Id/binary, "').show();
+
+       $('#d_", Field/binary, "_", Id/binary, "').html($('#i_", Field/binary, "_", Id/binary, "').val());
+       $('#ib_", Field/binary, "_", Id/binary, "').val($('#i_", Field/binary, "_", Id/binary, "').val());
+",
+	  (jsedit2(Id,Fields))/binary>>;
+jsedit2(_Id,[]) ->
+	<<>>.
+%
+
+jsedit3(Id,[{Field,_Srch}|Fields]) ->
+	<<"
+       $('#i_", Field/binary, "_", Id/binary, "').hide();
+       $('#i_", Field/binary, "_", Id/binary, "').val($('#ib_", Field/binary, "_", Id/binary, "').val());
+       $('#d_", Field/binary, "_", Id/binary, "').show();
+
+",
+	  (jsedit3(Id,Fields))/binary>>;
+jsedit3(_Id,[]) ->
+	<<>>.
+
+%
+
+mk_tab3(First,Id,[Item|RestRow],[Hdr|RestHdrs],[{Field,Srch}|Fields]) ->
+	<<
+"
+<tr>
+",
+	  (case First of
+		  1 -> <<"
+<th style='width:50px;' rowspan='8'>
+  <a href='javascript:void(0)' id='h", Id/binary, "'>", Id/binary, "</a>
+  <input id='s", Id/binary, "' type='button' name='s", Id/binary, "'' value='Save' class='ebutton'><br />
+  <input id='c", Id/binary, "' type='button' name='c", Id/binary, "'' value='Cancel' class='ebutton modal-cancel'>
+</th>
+">>;
+		  _ -> <<>>
+	  end)/binary,
+	  Hdr/binary,
+	  "
+<td>
+<div id='d_", Field/binary, "_", Id/binary, "'>",
+	  (hl(Item,Srch))/binary,
+"
+</div>
+<input id='ib_", Field/binary, "_", Id/binary, "' class='dbinput' name='' maxlength='", ?MAX_LENB/binary, "' value='", (list_to_binary(htmlize(binary_to_list(Item))))/binary, "'>
+<input id='i_", Field/binary, "_", Id/binary, "' class='dbinput' name='' maxlength='", ?MAX_LENB/binary, "' value='", (list_to_binary(htmlize(binary_to_list(Item))))/binary, "'>
+</td>
+</tr>",
+	  (mk_tab3(First+1,Id,RestRow,RestHdrs,Fields))/binary>>;
+mk_tab3(_,_Id,[],_Hdrs,_Fields) ->
+	<<>>.
+
+htmlize([H|T]) ->
+	[case H of
+		 38 -> "&amp;"; % & to &amp;
+		 60 -> "&lt;";  % < to &lt;
+		 62 -> "&gt;";  % > to &gt;
+		 39 -> "&#39;"; % ' to &#39;
+		 _ -> H
+	 end|htmlize(T)];
+htmlize([]) ->
+	[].
+
+hl(Item,FsrchData) ->
 	Clean =
 		case chk_dash(FsrchData) of
 			{"---",Rest} ->
