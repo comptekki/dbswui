@@ -681,7 +681,7 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 	OffSet = list_to_binary(integer_to_list((Start-1)*RowsPerPage)),
 	case Start==End of
 		false -> 
-			<<"<td><a href='javascript:void(0);' id='", StartB/binary, "'
+			<<"<td><a href='javascript:void(0)' id='", StartB/binary, "'
 				onclick=\"$('#offset').val(", OffSet/binary,");
 			$.ajax({
 				 url: '/", ServerPath/binary, "',
@@ -696,7 +696,7 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 		   });$(':input:text:first').focus();\">
 			", StartB/binary,"</a></td>", (build_nav(Start+1,End, RowsPerPage, ServerPath, S))/binary>>;
 		_ ->
-			<<"<td><a href='javascript:void(0);' id='", StartB/binary, "'
+			<<"<td><a href='javascript:void(0)' id='", StartB/binary, "'
 				onclick=\"$('#offset').val(", OffSet/binary,");
 			$.ajax({
 				 url: '/", ServerPath/binary, "',
@@ -730,6 +730,92 @@ do_query(Sp) ->
 
 %
 
+add_rec(Fields, ServerPath) ->
+	[Field|_]=Fields,
+	Hdrs= [<<"<th style='width:175px; text-align:right; vertical-align:top;'>", (title(X))/binary, "</th>">> || X <- Fields],
+	<<"
+<script>
+$(document).ready(function(){
+    $('#add_rec').click(function() {
+        $('#t_add_rec').modal({escClose:false, closeClass:'modal-cancel', focus:false, opacity:80, overlayCss: {backgroundColor:'#555'}});
+        $('#i_add_rec_", Field/binary, "').focus()
+    });
+
+    $('#s_add_rec').click(function() {
+
+	$.ajax({
+		url: '/",ServerPath/binary,"',
+		type: 'GET',
+		data: 'tablename=", ?DB/binary, "&s=3",
+ (setfields2a(Fields))/binary,
+",
+   success: function(data) {
+            if (view)
+                ajfun1()
+            else 
+                ajfun0();
+
+//            alert(arguments[2].responseText);
+
+//$('#data').html(arguments[2].responseText);
+
+		},
+		error:function(XMLHttpRequest, textStatus, errorThrown) {
+			alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
+		}
+  	});
+
+    $('#c_add_rec').click();
+  });
+
+})
+</script>
+
+<table id='t_add_rec' class='record'>",
+	  (add_rec(1,Hdrs,Fields))/binary,
+"</table>
+">>.
+
+%
+
+add_rec(First,[Hdr|RestHdrs],[Field|Fields]) ->
+	<<
+"
+<tr>
+",
+	  (case First of
+		  1 -> <<"
+<th style='width:50px;' rowspan='8'>
+  <input id='s_add_rec' type='button' name='s_add_rec' value='Save' class=''><br />
+  <input id='c_add_rec' type='button' name='c_add_rec' value='Cancel' class='modal-cancel'>
+</th>
+">>;
+		  _ -> <<>>
+	  end)/binary,
+	  Hdr/binary,
+	  "
+<td>
+<input id='i_add_rec_", Field/binary, "' class='dbinput2' name='' maxlength='", ?MAX_LENB/binary, "' value=''>
+</td>
+</tr>",
+	  (add_rec(First+1,RestHdrs,Fields))/binary>>;
+add_rec(_,[],_Fields) ->
+	<<>>.
+
+%
+
+setfields2a(Fields) ->
+	<<"&rpp=0&offset=0&id=add_rec' + ",
+    (setf2a(Fields))/binary>>.
+
+setf2a([Field|Fields]) ->
+	<<" '&",Field/binary,"=' + encodeURIComponent($('#i_add_rec_", Field/binary, "').val()) + ",
+	(setf2a(Fields))/binary>>;
+setf2a([]) ->
+	<<"''">>.
+
+%
+
 mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
     <<"
 <input id='s' type='hidden' value='0'>
@@ -740,6 +826,10 @@ mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
 			_ ->
 				<<"
 <a href='logout' id='logout'>logout</a>
+<a href='javascript:void(0)' id='add_rec'>add</a>
+",
+(add_rec(?TABLE, ServerPath))/binary,
+"
 <table>
 <tr>
 <td colspan='9'> 
@@ -754,12 +844,12 @@ mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
 (js3b())/binary,
 "
 <div id='click_fview' class='click'>
-	<a href='javascript:void(0);'>Click this line to use the Field Search</a>
+	<a href='javascript:void(0)'>Click this line to use the Field Search</a>
 </div>",
 (js4(ServerPath))/binary,
 "
 <div id='click_qsview' class='click'>
-    <a href='javascript:void(0);'>Click this line to use the Quick Search</a>
+    <a href='javascript:void(0)'>Click this line to use the Quick Search</a>
 </div>
 <div id='fview'>
 <table>
@@ -868,6 +958,7 @@ $(document).ready(function(){
 	  (mk_tab2(Rows,Hdrs,Fields, ServerPath))/binary>>;
 mk_tab2([],_Hdrs,_Fields, _ServerPath) ->
 	<<>>.
+
 %
 
 setfields2(Id, Fields) ->
@@ -928,8 +1019,8 @@ mk_tab3(First,Id,[Item|RestRow],[Hdr|RestHdrs],[{Field,Srch}|Fields]) ->
 		  1 -> <<"
 <th style='width:50px;' rowspan='8'>
   <a href='javascript:void(0)' id='h", Id/binary, "'>", Id/binary, "</a>
-  <input id='s", Id/binary, "' type='button' name='s", Id/binary, "'' value='Save' class='ebutton'><br />
-  <input id='c", Id/binary, "' type='button' name='c", Id/binary, "'' value='Cancel' class='ebutton modal-cancel'>
+  <input id='s", Id/binary, "' type='button' name='s", Id/binary, "' value='Save' class='ebutton'><br />
+  <input id='c", Id/binary, "' type='button' name='c", Id/binary, "' value='Cancel' class='ebutton modal-cancel'>
 </th>
 ">>;
 		  _ -> <<>>
