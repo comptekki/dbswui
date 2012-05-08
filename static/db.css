@@ -9,7 +9,7 @@ span.attribute {vertical-align: top; font-size: 80%;}
 th {padding: 5px; border: solid black 1px;}
 td {padding: 5px; border: solid black 1px;}
 span.hl {padding: 0 2px 0 2px; /* margin: 0 2px 0 2px; */ background-color:yellow; /*color:white;*/}
-#fview, #click_qsview, .ebutton {display:none;}
+#fview, #click_qsview, .ebutton, #t_add_rec {display:none;}
 .click {padding: 3px 3px 3px 3px; background-color: #dddddd; color:green; /*width: 245px;*/ }
 .click A:link, A:visited {text-decoration: none}
 .click A:hover {padding: 0 2px 0 2px; background-color: #eeffee;}
@@ -25,5 +25,6 @@ span.hl {padding: 0 2px 0 2px; /* margin: 0 2px 0 2px; */ background-color:yello
 .passwdd-t {float:left; padding: 0 5px 0 4px;}
 
 .dbinput {width:400px; display:none;}
+.dbinput2 {width:400px;}
 
 .modal-cancel {}
