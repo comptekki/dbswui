@@ -205,13 +205,29 @@ app_front_end(Req0, State) ->
 					  [_,_,_,_|RawFields] = FieldsAll,
 					  Fields=select_fields(RawFields),
 					  case S of
+						  <<"4">> -> 
+							  Ep=delete_pattern(Table, Fields),
+							  case do_delete(Ep) of
+								  {_, error} ->
+									  <<"Error Deleting Record!">>;
+								  _ ->
+									  <<"Record Deleted!">>
+							  end;
+						  <<"3">> -> 
+							  Ep=insert_pattern(Table, Fields),
+							  case do_insert(Ep) of
+								  {_, error} ->
+									  <<"Error Adding Data!">>;
+								  _ ->
+									  <<"Data Added!">>
+							  end;
 						  <<"2">> ->
 							  Ep=update_pattern(Table, Fields),
 							  case do_update(Ep) of
 								  {_, error} ->
 									  <<"Error Saving Data!">>;
 								  _ ->
-									  <<"Data Saved!">>
+									  <<"Data Updated!">>
 							  end;
 						  _ ->
 							  Sp =
@@ -237,6 +253,65 @@ app_front_end(Req0, State) ->
 	
 terminate(_Req, _State) ->
 	ok.
+%
+
+delete_pattern(Table, [{Field,Val}|_]) ->
+	<<"delete from ", Table/binary, " where ", Field/binary, "=", Val/binary>>.
+
+%
+
+do_delete(S) ->
+	io:format("~p~n",[S]),
+	case pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}]) of
+		{error,_} ->
+			{S, error};
+		{ok, Db} -> 
+			case pgsql:squery(Db, S) of
+				{error,Error} ->
+					io:format("delete error: ~p~n", [Error]),
+					{S, error};
+				{_,Res} ->
+					pgsql:close(Db),
+					{S, Res}
+			end
+	end.
+
+%
+
+insert_pattern(Table, [{_,_}|Fields]) ->
+	{Rfields, Rvals} = insert_pattern(Fields),
+	<<"insert into ", Table/binary, "(", Rfields/binary, ") values (", Rvals/binary, ")">>.
+
+%
+
+insert_pattern([{Field, Val}|Fields]) ->
+	insert_pattern(Fields, <<Field/binary>>, <<"E'", (escape0(Val))/binary, "'">>).
+
+insert_pattern([{Field, Val}|Fields], Accf, Accv) ->
+	case Val of
+		<<>> ->
+			insert_pattern(Fields, <<Accf/binary, ",", Field/binary>>, <<Accv/binary, ", ''">>);
+		_ ->
+			insert_pattern(Fields, <<Accf/binary, ",", Field/binary>>, <<Accv/binary, ", E'", (escape0(Val))/binary, "'">>)
+	end;
+insert_pattern([], Accf, Accv) ->
+	{Accf, Accv}.
+
+do_insert(S) ->
+	io:format("~p~n",[S]),
+	case pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}]) of
+		{error,_} ->
+			{S, error};
+		{ok, Db} -> 
+			case pgsql:squery(Db, S) of
+				{error,Error} ->
+					io:format("insert error: ~p~n", [Error]),
+					{S, error};
+				{_,Res} ->
+					pgsql:close(Db),
+					{S, Res}
+			end
+	end.
 
 %
 
@@ -755,7 +830,7 @@ $(document).ready(function(){
             else 
                 ajfun0();
 
-//            alert(arguments[2].responseText);
+            alert(arguments[2].responseText);
 
 //$('#data').html(arguments[2].responseText);
 
@@ -908,6 +983,33 @@ $(document).ready(function(){
 "
     });
 
+    $('#d", Id/binary, "').click(function() {
+
+	$.ajax({
+		url: '/",ServerPath/binary,"',
+		type: 'GET',
+		data: 'tablename=", ?DB/binary, "&s=4&rpp=0&offset=0&id=", Id/binary, "',
+		success: function(data) {
+            if (view)
+                ajfun1()
+            else 
+                ajfun0();
+
+            alert(arguments[2].responseText);
+
+//$('#data').html(arguments[2].responseText);
+
+		},
+		error:function(XMLHttpRequest, textStatus, errorThrown) {
+			alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
+		}
+  	});
+
+
+        $('#c", Id/binary, "').click();
+    });
+
+
     $('#s", Id/binary, "').click(function() {
 
         $('#s", Id/binary, "').hide();
@@ -925,7 +1027,7 @@ $(document).ready(function(){
             else 
                 ajfun0();
 
-//            alert(arguments[2].responseText);
+            alert(arguments[2].responseText);
 
 //$('#data').html(arguments[2].responseText);
 
@@ -1019,6 +1121,7 @@ mk_tab3(First,Id,[Item|RestRow],[Hdr|RestHdrs],[{Field,Srch}|Fields]) ->
 		  1 -> <<"
 <th style='width:50px;' rowspan='8'>
   <a href='javascript:void(0)' id='h", Id/binary, "'>", Id/binary, "</a>
+  <input id='d", Id/binary, "' type='button' name='d", Id/binary, "' value='Delete' class=''><br />
   <input id='s", Id/binary, "' type='button' name='s", Id/binary, "' value='Save' class='ebutton'><br />
   <input id='c", Id/binary, "' type='button' name='c", Id/binary, "' value='Cancel' class='ebutton modal-cancel'>
 </th>
