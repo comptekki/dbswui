@@ -985,28 +985,30 @@ $(document).ready(function(){
 
     $('#d", Id/binary, "').click(function() {
 
-	$.ajax({
-		url: '/",ServerPath/binary,"',
-		type: 'GET',
-		data: 'tablename=", ?DB/binary, "&s=4&rpp=0&offset=0&id=", Id/binary, "',
-		success: function(data) {
-            if (view)
-                ajfun1()
-            else 
-                ajfun0();
+        var ans = confirm ('Are you sure you want to delete this record')
+        if (ans) {
+            $.ajax({
+		       url: '/",ServerPath/binary,"',
+		       type: 'GET',
+               data: 'tablename=", ?DB/binary, "&s=4&rpp=0&offset=0&id=", Id/binary, "',
+               success: function(data) {
+                   if (view)
+                       ajfun1()
+                   else 
+                       ajfun0();
 
-            alert(arguments[2].responseText);
+                   alert(arguments[2].responseText);
 
 //$('#data').html(arguments[2].responseText);
 
-		},
-		error:function(XMLHttpRequest, textStatus, errorThrown) {
-			alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
-		}
-  	});
-
-
-        $('#c", Id/binary, "').click();
+		       },
+               error:function(XMLHttpRequest, textStatus, errorThrown) {
+			       alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
+		       }
+  	        });
+        
+            $('#c", Id/binary, "').click()
+        }
     });
 
 
