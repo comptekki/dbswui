@@ -2,7 +2,6 @@
 -behaviour(cowboy_http_handler).
 -export([init/3, handle/2, terminate/2]).
 
--include("http.hrl").
 -include("db.hrl").
 
 %
@@ -65,12 +64,12 @@ checkCreds(UnamePasswds, Req, _State) ->
 %
 
 checkPost(UnamePasswds,Req) ->
-	case Req#http_req.method of
-		'POST' ->
-			{FormData, Req0}=cowboy_http_req:body_qs(Req),
+	case cowboy_http_req:method(Req) of
+		{'POST', Req0} ->
+			{FormData, Req1} = cowboy_http_req:body_qs(Req0),
 			case FormData of
 				[{_UnameVar,UnameVal},{_PasswdVar,PasswdVal},_Login] ->
-					checkCreds(UnamePasswds,UnameVal,PasswdVal,Req0);
+					checkCreds(UnamePasswds,UnameVal,PasswdVal,Req1);
 				_ ->
 					{fail,Req}
 			end;
@@ -116,7 +115,7 @@ app_login(Req, State) ->
 
 <link rel='icon' href='/static/favicon.ico' type='image/x-icon' />
 <link href='/static/db.css' media='screen' rel='stylesheet' type='text/css' />
-<script type='text/javascript' src='/static/jquery.js'></script>
+<script type='text/javascript' src='",?JQUERY,"'></script>
 <script>
 $(document).ready(function(){
 
@@ -261,8 +260,8 @@ delete_pattern(Table, [{Field,Val}|_]) ->
 %
 
 do_delete(S) ->
-	io:format("~p~n",[S]),
-	case pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}]) of
+io:format("~p~n",[S]),
+	case pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}, {port, ?PORT}]) of
 		{error,_} ->
 			{S, error};
 		{ok, Db} -> 
@@ -299,7 +298,7 @@ insert_pattern([], Accf, Accv) ->
 
 do_insert(S) ->
 	io:format("~p~n",[S]),
-	case pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}]) of
+	case pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}, {port, ?PORT}]) of
 		{error,_} ->
 			{S, error};
 		{ok, Db} -> 
@@ -336,7 +335,7 @@ update_pattern([], Accf, Accv) ->
 
 do_update(S) ->
 	io:format("~p~n",[S]),
-	case pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}]) of
+	case pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}, {port, ?PORT}]) of
 		{error,_} ->
 			{S, error};
 		{ok, Db} -> 
@@ -544,6 +543,7 @@ ajfun0 = function() {
 		data: 'tablename=", ?DB/binary, "&s=0",(setfields())/binary,",
 		success: function(data) {
 			    $('#data').html(arguments[2].responseText);
+                $('#fview input:first').focus()
 		},
 		error:function(XMLHttpRequest, textStatus, errorThrown) {
 			alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
@@ -588,6 +588,7 @@ js4(ServerPath) ->
 			data: 'tablename=", ?DB/binary, "&s=1", (setfields_single())/binary, ",
 			success: function(data) {
 			    $('#data').html(arguments[2].responseText);
+                $('#single_input_db').focus()
 		    },
 		    error:function(XMLHttpRequest, textStatus, errorThrown) {
 	 		    alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
@@ -790,7 +791,7 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 %	
 
 do_query(Sp) ->	
-	case pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}]) of
+	case pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}, {port, ?PORT}]) of
 		{error,_} ->
 			{Sp, error};
 		{ok, Db} -> 
