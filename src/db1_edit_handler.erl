@@ -163,23 +163,30 @@ hi
 handle(Req, State) ->
 	case fire_wall(Req) of
 		allow ->
-			Creds=login_is(),
-			case is_list(Creds) of
-				true ->
-					{Cred,Req0}=checkCreds(Creds, Req, State),
-					case Cred of
-						fail ->
-							app_login(Req0, State);
-						pass ->
-							app_front_end(Req0, State)
+			case cowboy_http_req:transport(Req) of
+				{ok, cowboy_ssl_transport, _} ->
+					Creds=login_is(),
+					case is_list(Creds) of
+						true ->
+							{Cred,Req0}=checkCreds(Creds, Req, State),
+							case Cred of
+								fail ->
+									app_login(Req0, State);
+								pass ->
+									app_front_end(Req0, State)
+							end;
+						false -> 
+							case Creds of
+								off ->
+									app_front_end(Req, State);
+								_  ->
+									app_login(Req, State)
+							end
 					end;
-				false -> 
-					case Creds of
-						off ->
-							app_front_end(Req, State);
-						_  ->
-							app_login(Req, State)
-					end
+				_ ->
+					{ok,Req1} = cowboy_http_req:set_resp_header('Location', <<"/db1">>, Req),
+					{ok, Req2} = cowboy_http_req:reply(302, [], <<>>, Req1),
+					{ok, Req2, State}
 			end;
 		deny ->
 			fwDenyMessage(Req, State)
