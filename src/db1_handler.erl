@@ -319,7 +319,7 @@ table2(RowsPerPage, ServerPath, Fields, S, Result, Res2) ->
 	Count=list_to_binary(integer_to_list(length(Res2))),
 	case Count of
 		<<"0">> ->
-			<<"<br /><table style='background-color:black; color:yellow;'><tr><td>No matches found...</td></tr></table>">>;
+			<<"<br /><table style='background-color:black; color:red;'><tr><td>No matches found...</td></tr></table>">>;
 		_ ->
 			Headers = ?TABLE,
 			Nav= <<"
