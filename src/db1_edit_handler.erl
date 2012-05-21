@@ -11,7 +11,7 @@ init({_Any, http}, Req, []) ->
 
 fire_wall(Req) ->	
 	{PeerAddress, _Req}=cowboy_http_req:peer_addr(Req),
-	{ok, [_,{FireWallOnOff,IPAddresses},_,_,_]}=file:consult(?CONF),
+	{ok, [_,{FireWallOnOff,IPAddresses},_,_]}=file:consult(?CONF),
 	case FireWallOnOff of
 		on ->
 			case lists:member(PeerAddress,IPAddresses) of
@@ -43,7 +43,7 @@ Access Denied!
 %
 
 login_is() ->
-	{ok, [_,_,{UPOnOff,UnamePasswds},_,_]}=file:consult(?CONF),
+	{ok, [_,_,{UPOnOff,UnamePasswds},_]}=file:consult(?CONF),
 	case UPOnOff of
 		on -> UnamePasswds;
 		off -> off
@@ -51,14 +51,14 @@ login_is() ->
 
 %
 
-checkCreds(UnamePasswds, Req, _State) ->
-	{ok, [_,_,_,_,{CookieName}]}=file:consult(?CONF),
-	{C,_Req} = cowboy_http_req:cookie(CookieName, Req),
-    case C of
-		undefined ->
-			checkPost(UnamePasswds,Req);
-		<<"true">> ->
-			{pass,Req}
+checkCreds(UnamePasswds, Req0, _State) ->
+	[{Uname,_}] = UnamePasswds,
+	{C, Req} = cowboy_http_req:cookie(Uname, Req0),
+    case (C == undefined) or (C == <<>>) of
+		true ->
+			checkPost(UnamePasswds, Req);
+		false  ->
+			{pass, Req}
 	end.
 
 %
@@ -79,22 +79,32 @@ checkPost(UnamePasswds,Req) ->
 
 %
 
-checkCreds([{Uname,Passwd}|UnamePasswds],Uarg,Parg,Req) ->
+gseconds_b() ->
+	list_to_binary(integer_to_list(gseconds())).
+
+%
+
+gseconds() ->
+	calendar:datetime_to_gregorian_seconds({date(), time()}).
+
+%
+
+checkCreds([{Uname,Passwd}|UnamePasswds], Uarg, Parg, Req) ->
     case Uname of
 		Uarg ->
 			case Passwd of
 				Parg ->
-					{ok, [_,_,_,{MaxAge},{CookieName}]}=file:consult(?CONF),
-					{ok,Req0}=cowboy_http_req:set_resp_cookie(CookieName,<<"true">>,[{max_age,MaxAge},{path,"/"}],Req),
-					{pass,Req0};
+					{ok, [_, _, _, {MaxAge}]} = file:consult(?CONF),
+					{ok, Req0} = cowboy_http_req:set_resp_cookie(Uname, gseconds_b(), [{max_age, MaxAge}, {path, "/"}, {secure, true}, {http_only, true}], Req),
+					{pass, Req0};
 				_ ->
 					checkCreds(UnamePasswds,Uarg,Parg,Req)
 			end;
 		_ ->
-			checkCreds(UnamePasswds,Uarg,Parg,Req)
+			checkCreds(UnamePasswds, Uarg, Parg, Req)
 	end;
-checkCreds([],_Uarg,_Parg,Req) ->
-	{fail,Req}.
+checkCreds([], _Uarg, _Parg, Req) ->
+	{fail, Req}.
 
 %
 
@@ -140,8 +150,7 @@ $('#uname').focus();
 </div>
 </form>
 </body>
-</html>">>, Req),
-					{ok, Req2, State};
+</html>">>, Req);
                 false ->
 					{ok, Req2} = cowboy_http_req:reply(200, [{'Content-Type', <<"text/html">>}],
 <<"<html>
@@ -151,9 +160,9 @@ $('#uname').focus();
 <body>
 hi
 </body>
-</html>">>, Req),
-{ok, Req2, State}
-            end;
+</html>">>, Req)
+            end,
+    {ok, Req2, State};
         deny ->
             fwDenyMessage(Req, State)
     end.
@@ -197,17 +206,16 @@ handle(Req, State) ->
 app_front_end(Req0, State) ->
 	{[ServerPath1, ServerPath2], Req1} = cowboy_http_req:path(Req0),
 	ServerPath= <<ServerPath1/binary, "/",ServerPath2/binary>>,
-	{Client_IP, Req} = cowboy_http_req:peer_addr(Req1),
+	{Client_IP, Req2} = cowboy_http_req:peer_addr(Req1),
 	io:format("~nIP: ~p - Date/Time: ~p~n",[Client_IP, calendar:local_time()]),
-	{S, _Req} = cowboy_http_req:qs_val(<<"s">>,Req),
-	{Table, _Req} = cowboy_http_req:qs_val(<<"tablename">>,Req),
-	{ok, Req2} =
-		cowboy_http_req:reply(200, [],
-			  case Table of
+	{S, Req3} = cowboy_http_req:qs_val(<<"s">>, Req2),
+	{Table, Req4} = cowboy_http_req:qs_val(<<"tablename">>, Req3),
+
+			  Val = case Table of
 				  ?DB ->
-					  {Rpp, _Req} = cowboy_http_req:qs_val(<<"rpp">>,Req),
-					  {Offset, _Req} = cowboy_http_req:qs_val(<<"offset">>,Req),
-					  {FieldsAll, _Req} = cowboy_http_req:qs_vals(Req),
+					  {Rpp, Req5} = cowboy_http_req:qs_val(<<"rpp">>, Req4),
+					  {Offset, Req6} = cowboy_http_req:qs_val(<<"offset">>, Req5),
+					  {FieldsAll, Req7} = cowboy_http_req:qs_vals(Req6),
 					  [_,_,_,_|RawFields] = FieldsAll,
 					  Fields=select_fields(RawFields),
 					  case S of
@@ -245,6 +253,7 @@ app_front_end(Req0, State) ->
 							  <<(table(Sp, SpOffset, Rpp, ServerPath, Fields, S))/binary>>
 					  end;
 				  _ ->
+					  Req7 = Req4,
 					  case S of
 						  <<"1">> ->
 							  <<(return_top_page(ServerPath, <<"1">>))/binary>>;
@@ -252,8 +261,8 @@ app_front_end(Req0, State) ->
 							  <<(return_top_page(ServerPath, <<"0">>))/binary>>
 					  end
 			  end,
-			  Req),
-	{ok, Req2, State}.
+	{ok, Req8} = cowboy_http_req:reply(200, [], Val, Req7),
+	{ok, Req8, State}.
 
 %
 	
@@ -268,7 +277,7 @@ delete_pattern(Table, [{Field,Val}|_]) ->
 
 do_delete(S) ->
 io:format("~p~n",[S]),
-	case pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}, {port, ?PORT}]) of
+	case pgsql:connect(?DBHOST, ?USERNAME, ?PASSWORD, [{database, ?DB}, {port, ?PORT}]) of
 		{error,_} ->
 			{S, error};
 		{ok, Db} -> 
@@ -305,7 +314,7 @@ insert_pattern([], Accf, Accv) ->
 
 do_insert(S) ->
 	io:format("~p~n",[S]),
-	case pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}, {port, ?PORT}]) of
+	case pgsql:connect(?DBHOST, ?USERNAME, ?PASSWORD, [{database, ?DB}, {port, ?PORT}]) of
 		{error,_} ->
 			{S, error};
 		{ok, Db} -> 
@@ -342,7 +351,7 @@ update_pattern([], Accf, Accv) ->
 
 do_update(S) ->
 	io:format("~p~n",[S]),
-	case pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}, {port, ?PORT}]) of
+	case pgsql:connect(?DBHOST, ?USERNAME, ?PASSWORD, [{database, ?DB}, {port, ?PORT}]) of
 		{error,_} ->
 			{S, error};
 		{ok, Db} -> 
@@ -471,7 +480,8 @@ rttp_main(ServerPath, Hdr) ->
 <script type='text/javascript' src='/static/jquery.simplemodal.1.4.2.min.js'></script>
 <script type='text/javascript'>
 
-var view=true;
+var view = true;
+var activeElement = null;
 
 $(document).ready(function() {
 
@@ -483,7 +493,7 @@ $(document).ready(function() {
         $('#click_fview').hide('slow');
         $('#title').focus();
         ajfun0();
-        view=false
+        view = false
     }); 
 
     $('#click_qsview').click(function() {
@@ -494,7 +504,7 @@ $(document).ready(function() {
         $('#click_fview').show('slow');
         $('#single_input_db').focus();
         ajfun1();
-        view=true
+        view = true
     });
 
     $('#single_input_db').focus();
@@ -543,14 +553,23 @@ js3a(ServerPath) ->
 <<"
 <script type='text/javascript'>
 ajfun0 = function() {
+	activeElement=document.activeElement;
 	$('#offset').val(0);
 	$.ajax({
 		url: '/",ServerPath/binary,"',
 		type: 'GET',
 		data: 'tablename=", ?DB/binary, "&s=0",(setfields())/binary,",
 		success: function(data) {
-			    $('#data').html(arguments[2].responseText);
-                $('#fview input:first').focus()
+
+                   if (arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') < 0) {
+                       alert('Login Expired - Please Re-Login...');
+                       location.href='/",ServerPath/binary,"'
+                   }
+                   else {
+                       $('#data').html(arguments[2].responseText);
+                       activeElement.focus()
+                   }
+
 		},
 		error:function(XMLHttpRequest, textStatus, errorThrown) {
 			alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
@@ -594,8 +613,18 @@ js4(ServerPath) ->
 			type: 'GET',
 			data: 'tablename=", ?DB/binary, "&s=1", (setfields_single())/binary, ",
 			success: function(data) {
-			    $('#data').html(arguments[2].responseText);
+
+                   if (arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') < 0) {
+                       alert('Login Expired - Please Re-Login...');
+                       location.href='/",ServerPath/binary,"'
+                   }
+                   else {
+
+                $('#data').html(arguments[2].responseText);
                 $('#single_input_db').focus()
+
+                   }
+
 		    },
 		    error:function(XMLHttpRequest, textStatus, errorThrown) {
 	 		    alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
@@ -658,8 +687,7 @@ table2(RowsPerPage, ServerPath, Fields, S, Result, Res2) ->
 ">>, % end of Nav
 <<"
 
-<br />
-<div id='riv'>
+<div id='riv' class='brk'>
 <table>
 <tr>
 <td>
@@ -679,6 +707,9 @@ table2(RowsPerPage, ServerPath, Fields, S, Result, Res2) ->
 </td>
 <td class='rows'>
 <span>Show <span id='range_val'>10</span> items per page</span>
+</td>
+<td>
+Items Found: ", Count/binary,"
 </td>
 </tr>
 </table>
@@ -711,8 +742,7 @@ $(document).ready(function() {
 			type: 'GET',
 			data: 'tablename=", ?DB/binary, "&s=", (s_fields(S))/binary, ",
 			success: function(data) {
-			    $('#data').html(arguments[2].responseText);
-//				$('#data').html(data)
+                $('#data').html(arguments[2].responseText);
 			},
 			error:function(XMLHttpRequest, textStatus, errorThrown) {
 				alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown)
@@ -722,13 +752,6 @@ $(document).ready(function() {
 })
 </script>
 
-<table>
-<tr>
-<td>
-<p>Items Found: ", Count/binary,"</p>
-</td>
-</tr>
-</table>
 <div>",
 Nav/binary,
 (mk_tab(Headers, Result, Fields, ServerPath))/binary,
@@ -771,7 +794,7 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 				 type: 'GET',
 				 data: 'tablename=", ?DB/binary, "&s=", (s_fields(S))/binary, ",
 				 success: function(data) {
-  			        $('#data').html(arguments[2].responseText);
+                     $('#data').html(arguments[2].responseText);
 				 },
 				 error:function(XMLHttpRequest, textStatus, errorThrown) {
 				  alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
@@ -786,7 +809,7 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 				 type: 'GET',
 				 data: 'tablename=", ?DB/binary, "&s=", (s_fields(S))/binary, ",
 				 success: function(data) {
-  			        $('#data').html(arguments[2].responseText);
+                     $('#data').html(arguments[2].responseText);
 				 },
 				 error:function(XMLHttpRequest, textStatus, errorThrown) {
 				  alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
@@ -798,7 +821,7 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 %	
 
 do_query(Sp) ->	
-	case pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}, {port, ?PORT}]) of
+	case pgsql:connect(?DBHOST, ?USERNAME, ?PASSWORD, [{database, ?DB}, {port, ?PORT}]) of
 		{error,_} ->
 			{Sp, error};
 		{ok, Db} -> 
@@ -837,11 +860,7 @@ $(document).ready(function(){
                 ajfun1()
             else 
                 ajfun0();
-
             alert(arguments[2].responseText);
-
-//$('#data').html(arguments[2].responseText);
-
 		},
 		error:function(XMLHttpRequest, textStatus, errorThrown) {
 			alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
@@ -913,6 +932,7 @@ mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
 ",
 (add_rec(?TABLE, ServerPath))/binary,
 "
+<div class='brk spc'>
 <table>
 <tr>
 <td colspan='9'> 
@@ -920,9 +940,9 @@ mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
 </td>
 </tr>
 </table>
+</div>
 ">>
 	    end)/binary,
-		"<br />",
 (js3a(ServerPath))/binary,
 (js3b())/binary,
 "
@@ -938,9 +958,11 @@ mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
 <table>
 <tr>
 <td class='srch'>Field Search</td>
+<td>
 ",
 (mk_input_fields(?TABLE))/binary,
 "
+</td>
 </tr>
 </table>
 </div>
@@ -959,8 +981,12 @@ mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
 % create each table cell; consisting of the attribute name and an input field.
 
 mk_input_fields([Col|Cols]) ->
-                <<"<td><span class='attribute'>", (title(Col))/binary,"</span>
-<input id='",Col/binary,"' type='text' name='", Col/binary, "' maxlength='30'></td>",(mk_input_fields(Cols))/binary>>;
+                <<
+"<div class='brk'>
+<input id='",Col/binary,"' type='text' name='", Col/binary, "' maxlength='30'>
+<span class='attribute'>", (title(Col))/binary,"</span>
+</div>
+",(mk_input_fields(Cols))/binary>>;
 mk_input_fields([]) ->
 	<<>>.
     
@@ -969,11 +995,7 @@ mk_input_fields([]) ->
 mk_tab(Headers, Rows, Fields, ServerPath) ->
 	Hdrs= [<<"<th style='width:175px; text-align:right; vertical-align:top;'>", (title(X))/binary, "</th>">> || X <- Headers],
     <<"<div>",
-%      <table class='data'>
-%     ",
          (mk_tab2(Rows,Hdrs,Fields, ServerPath))/binary,
-%        "
-%      </table>
    "</div>">>.
 
 mk_tab2([RowTuple|Rows],Hdrs,Fields, ServerPath) ->
@@ -1004,11 +1026,13 @@ $(document).ready(function(){
                        ajfun1()
                    else 
                        ajfun0();
-
-                   alert(arguments[2].responseText);
-
-//$('#data').html(arguments[2].responseText);
-
+                   if (arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') < 0) {
+                       alert('Login Expired - Please Re-Login...');
+                       location.href='/",ServerPath/binary,"'
+                   }
+                   else {
+                       alert(arguments[2].responseText);
+                   }
 		       },
                error:function(XMLHttpRequest, textStatus, errorThrown) {
 			       alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
@@ -1037,9 +1061,13 @@ $(document).ready(function(){
             else 
                 ajfun0();
 
-            alert(arguments[2].responseText);
-
-//$('#data').html(arguments[2].responseText);
+                   if (arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') < 0) {
+                       alert('Login Expired - Please Re-Login...');
+                       location.href='/",ServerPath/binary,"'
+                   }
+                   else {
+                       alert(arguments[2].responseText);
+                   }
 
 		},
 		error:function(XMLHttpRequest, textStatus, errorThrown) {
