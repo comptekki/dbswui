@@ -37,7 +37,7 @@ init({_Any, http}, Req, []) ->
 	{ok, Req, undefined}.
 
 handle(Req, State) ->
-	{ok, [_,_,{_,[{Uname,_}]},_]}=file:consult(?CONF),
+	{ok, [_,_,{_,[{Uname,_}]}]}=file:consult(?CONF),
 	{ok,Req2}=cowboy_http_req:set_resp_cookie(Uname,<<"">>,[{path,"/"}],Req),
 	{ok,Req3}=cowboy_http_req:set_resp_header('Location',<<"/db1">>,Req2),
 	{ok, Req4} = cowboy_http_req:reply(307, [],<<>>, Req3),
