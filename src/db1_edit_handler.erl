@@ -461,7 +461,7 @@ return_top_page(ServerPath, Hdr) ->
 get_top() ->
 <<"<html>
 <head>
-<title>test</title>
+<title>DBSWUI</title>
 
 <meta Http-Equiv='Cache-Control' Content='no-cache'>
 <meta Http-Equiv='Pragma' Content='no-cache'>
@@ -560,15 +560,15 @@ ajfun0 = function() {
 		type: 'GET',
 		data: 'tablename=", ?DB/binary, "&s=0",(setfields())/binary,",
 		success: function(data) {
-
-                   if (arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') < 0) {
-                       alert('Login Expired - Please Re-Login...');
-                       location.href='/",ServerPath/binary,"'
-                   }
-                   else {
-                       $('#data').html(arguments[2].responseText);
-                       activeElement.focus()
-                   }
+alert('ajfun0' );
+            if (arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') > -1) {
+                alert('Login Expired - Please Re-Login...');
+                location.href='/",ServerPath/binary,"'
+            }
+            else {
+                $('#data').html(arguments[2].responseText);
+                activeElement.focus()
+            }
 
 		},
 		error:function(XMLHttpRequest, textStatus, errorThrown) {
@@ -614,16 +614,16 @@ js4(ServerPath) ->
 			data: 'tablename=", ?DB/binary, "&s=1", (setfields_single())/binary, ",
 			success: function(data) {
 
-                   if (arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') < 0) {
-                       alert('Login Expired - Please Re-Login...');
-                       location.href='/",ServerPath/binary,"'
-                   }
-                   else {
+                if ((arguments[2].responseText.indexOf('DB1 Login') > -1) && (arguments[2].responseText.indexOf('html') == 1)) {
+                    alert('Login Expired - Please Re-Login...');
+                    location.href='/",ServerPath/binary,"'
+                }
+                else {
 
-                $('#data').html(arguments[2].responseText);
-                $('#single_input_db').focus()
+                    $('#data').html(arguments[2].responseText);
+                    activeElement.focus()
 
-                   }
+                }
 
 		    },
 		    error:function(XMLHttpRequest, textStatus, errorThrown) {
@@ -742,7 +742,25 @@ $(document).ready(function() {
 			type: 'GET',
 			data: 'tablename=", ?DB/binary, "&s=", (s_fields(S))/binary, ",
 			success: function(data) {
-                $('#data').html(arguments[2].responseText);
+
+                   if (arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
+                       alert('Login Expired - Please Re-Login...');
+                       location.href='/",ServerPath/binary,"'
+                   }
+                   else {
+                       $('#data').html(arguments[2].responseText);
+                       activeElement.focus()
+                   }
+
+
+//                   if (view)
+//                       ajfun1()
+//                   else 
+//                       ajfun0();
+
+//                   alert(arguments[2].responseText);
+
+//                $('#data').html(arguments[2].responseText);
 			},
 			error:function(XMLHttpRequest, textStatus, errorThrown) {
 				alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown)
@@ -794,7 +812,26 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 				 type: 'GET',
 				 data: 'tablename=", ?DB/binary, "&s=", (s_fields(S))/binary, ",
 				 success: function(data) {
-                     $('#data').html(arguments[2].responseText);
+
+                   if (arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
+                       alert('Login Expired - Please Re-Login...');
+                       location.href='/",ServerPath/binary,"'
+                   }
+                   else {
+                       $('#data').html(arguments[2].responseText);
+                       activeElement.focus()
+                   }
+
+
+//                   if (view)
+//                       ajfun1()
+//                   else 
+//                       ajfun0();
+
+//                   alert(arguments[2].responseText);
+
+//                   $('#data').html(arguments[2].responseText);
+
 				 },
 				 error:function(XMLHttpRequest, textStatus, errorThrown) {
 				  alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
@@ -809,7 +846,26 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 				 type: 'GET',
 				 data: 'tablename=", ?DB/binary, "&s=", (s_fields(S))/binary, ",
 				 success: function(data) {
-                     $('#data').html(arguments[2].responseText);
+
+                   if (arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
+                       alert('Login Expired - Please Re-Login...');
+                       location.href='/",ServerPath/binary,"'
+                   }
+                   else {
+                       $('#data').html(arguments[2].responseText);
+                       activeElement.focus()
+                   }
+
+
+//                   if (view)
+//                       ajfun1()
+//                   else 
+//                       ajfun0();
+
+//                   alert(arguments[2].responseText);
+
+//                   $('#data').html(arguments[2].responseText);
+
 				 },
 				 error:function(XMLHttpRequest, textStatus, errorThrown) {
 				  alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
@@ -860,7 +916,10 @@ $(document).ready(function(){
                 ajfun1()
             else 
                 ajfun0();
-            alert(arguments[2].responseText);
+
+            if (!(arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
+                alert(arguments[2].responseText)
+
 		},
 		error:function(XMLHttpRequest, textStatus, errorThrown) {
 			alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
@@ -1026,13 +1085,10 @@ $(document).ready(function(){
                        ajfun1()
                    else 
                        ajfun0();
-                   if (arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') < 0) {
-                       alert('Login Expired - Please Re-Login...');
-                       location.href='/",ServerPath/binary,"'
-                   }
-                   else {
-                       alert(arguments[2].responseText);
-                   }
+
+                   if (!(arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
+                       alert(arguments[2].responseText)
+
 		       },
                error:function(XMLHttpRequest, textStatus, errorThrown) {
 			       alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
@@ -1061,13 +1117,8 @@ $(document).ready(function(){
             else 
                 ajfun0();
 
-                   if (arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') < 0) {
-                       alert('Login Expired - Please Re-Login...');
-                       location.href='/",ServerPath/binary,"'
-                   }
-                   else {
-                       alert(arguments[2].responseText);
-                   }
+            if (!(arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
+                alert(arguments[2].responseText)
 
 		},
 		error:function(XMLHttpRequest, textStatus, errorThrown) {
