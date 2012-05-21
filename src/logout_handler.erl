@@ -31,11 +31,14 @@
 -behaviour(cowboy_http_handler).
 -export([init/3, handle/2, terminate/2]).
 
+-include("db.hrl").
+
 init({_Any, http}, Req, []) ->
 	{ok, Req, undefined}.
 
 handle(Req, State) ->
-	{ok,Req2}=cowboy_http_req:set_resp_cookie(<<"db1_logged_in">>,<<"">>,[{max_age,-3600},{path,"/"}],Req),
+	{ok, [_,_,{_,[{Uname,_}]},_]}=file:consult(?CONF),
+	{ok,Req2}=cowboy_http_req:set_resp_cookie(Uname,<<"">>,[{path,"/"}],Req),
 	{ok,Req3}=cowboy_http_req:set_resp_header('Location',<<"/db1">>,Req2),
 	{ok, Req4} = cowboy_http_req:reply(307, [],<<>>, Req3),
 	{ok, Req4, State}.
