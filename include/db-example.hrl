@@ -15,3 +15,4 @@
 			<<"field3">> -> <<"Field3">>
 		end).
 -define(CONF,"/path/to//db1.conf").
+-define(MAXAGE, 900).
