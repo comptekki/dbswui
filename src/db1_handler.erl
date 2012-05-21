@@ -333,8 +333,7 @@ table2(RowsPerPage, ServerPath, Fields, S, Result, Res2) ->
 ">>, % end of Nav
 <<"
 
-<br />
-<div id='riv'>
+<div id='riv' class='brk'>
 <table>
 <tr>
 <td>
@@ -355,6 +354,11 @@ table2(RowsPerPage, ServerPath, Fields, S, Result, Res2) ->
 <td class='rows'>
 <span>Show <span id='range_val'>10</span> items per page</span>
 </td>
+
+<td>
+<p>Items Found: ", Count/binary,"</p>
+</td>
+
 </tr>
 </table>
 </div>
@@ -397,13 +401,6 @@ $(document).ready(function() {
 })
 </script>
 
-<table>
-<tr>
-<td>
-<p>Items Found: ", Count/binary,"</p>
-</td>
-</tr>
-</table>
 <div>",
 Nav/binary,
 (mk_tab(Headers, Result, Fields))/binary,
@@ -473,7 +470,7 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 %	
 
 do_query(Sp) ->	
-	case pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}]) of
+	case pgsql:connect(?DBHOST, ?USERNAME, ?PASSWORD, [{database, ?DB}]) of
 		{error,_} ->
 			{Sp, error};
 		{ok, Db} -> 
@@ -491,40 +488,44 @@ do_query(Sp) ->
 mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
     <<"
 <input id='s' type='hidden' value='0'>
-<input id='range_input' type='hidden' value='",RowsPerPage/binary,"'>
-<input id='offset' type='hidden' value='",Offset/binary,"'>",
+<input id='range_input' type='hidden' value='", RowsPerPage/binary, "'>
+<input id='offset' type='hidden' value='", Offset/binary, "'>",
 	  (case Hdr of
 			<<"1">> -> <<"">>;
 			_ ->
 				<<"
+<div class='brk spc'>
 <table>
 <tr>
 <td colspan='9'> 
 <p style='text-align: center; text-transform: uppercase;color: #949610; font-size:1.5em'>", ?DBTITLE/binary, "</p>
+<a href='https://", ?HOST, ":9443/db1/edit'>edit</a>
 </td>
 </tr>
 </table>
+</div>
 ">>
 	    end)/binary,
-		"<br />",
 (js3a(ServerPath))/binary,
 (js3b())/binary,
 "
-<div id='click_fview' class='click'>
+<div id='click_fview' class='click brk'>
 	<a href='javascript:void(0);'>Click this line to use the Field Search</a>
 </div>",
 (js4(ServerPath))/binary,
 "
-<div id='click_qsview' class='click'>
+<div id='click_qsview' class='click brk'>
     <a href='javascript:void(0);'>Click this line to use the Quick Search</a>
 </div>
 <div id='fview'>
 <table>
 <tr>
 <td class='srch'>Field Search</td>
+<td>
 ",
 (mk_input_fields(?TABLE))/binary,
 "
+</td>
 </tr>
 </table>
 </div>
@@ -543,8 +544,12 @@ mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
 % create each table cell; consisting of the attribute name and an input field.
 
 mk_input_fields([Col|Cols]) ->
-                <<"<td><span class='attribute'>", (title(Col))/binary,"</span>
-<input id='",Col/binary,"' type='text' name='", Col/binary, "' maxlength='30'></td>",(mk_input_fields(Cols))/binary>>;
+                <<
+"<div class='brk'>
+<input id='",Col/binary,"' type='text' name='", Col/binary, "' maxlength='30'>
+<span class='attribute'>", (title(Col))/binary,"</span>
+</div>
+",(mk_input_fields(Cols))/binary>>;
 mk_input_fields([]) ->
 	<<"">>.
     
@@ -553,11 +558,7 @@ mk_input_fields([]) ->
 mk_tab(Headers, Rows, Fields) ->
 	Hdrs= [<<"<th style='width:175px; text-align:right; vertical-align:top;'>", (title(X))/binary, "</th>">> || X <- Headers],
     <<"<div>",
-%      <table class='data'>
-%     ",
          (mk_tab2(Rows,Hdrs,Fields))/binary,
-%        "
-%      </table>
    "</div>">>.
 
 mk_tab2([RowTuple|Rows],Hdrs,Fields) ->
