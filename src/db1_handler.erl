@@ -225,8 +225,9 @@ ajfun0 = function() {
 		type: 'GET',
 		data: 'tablename=", ?DB/binary, "&s=0",(setfields())/binary,",
 		success: function(data) {
+
 			    $('#data').html(arguments[2].responseText);
-//			$('#data').html(data) 
+
 		},
 		error:function(XMLHttpRequest, textStatus, errorThrown) {
 			alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
