@@ -11,7 +11,7 @@ init({_Any, http}, Req, []) ->
 
 fire_wall(Req) ->	
 	{PeerAddress, _Req}=cowboy_http_req:peer_addr(Req),
-	{ok, [_,{FireWallOnOff,IPAddresses},_,_]}=file:consult(?CONF),
+	{ok, [_,{FireWallOnOff,IPAddresses},_]}=file:consult(?CONF),
 	case FireWallOnOff of
 		on ->
 			case lists:member(PeerAddress,IPAddresses) of
@@ -43,7 +43,7 @@ Access Denied!
 %
 
 login_is() ->
-	{ok, [_,_,{UPOnOff,UnamePasswds},_]}=file:consult(?CONF),
+	{ok, [_,_,{UPOnOff,UnamePasswds}]}=file:consult(?CONF),
 	case UPOnOff of
 		on -> UnamePasswds;
 		off -> off
@@ -51,14 +51,15 @@ login_is() ->
 
 %
 
-checkCreds(UnamePasswds, Req0, _State) ->
+checkCreds(UnamePasswds, Req, _State) ->
 	[{Uname,_}] = UnamePasswds,
-	{C, Req} = cowboy_http_req:cookie(Uname, Req0),
+	{C, Req1} = cowboy_http_req:cookie(Uname, Req),
     case (C == undefined) or (C == <<>>) of
 		true ->
-			checkPost(UnamePasswds, Req);
+			checkPost(UnamePasswds, Req1);
 		false  ->
-			{pass, Req}
+			{ok, Req2} = cowboy_http_req:set_resp_cookie(Uname, gseconds_b(), [{max_age, ?MAXAGE}, {path, "/"}, {secure, true}, {http_only, true}], Req1),
+			{pass, Req2}
 	end.
 
 %
@@ -94,8 +95,7 @@ checkCreds([{Uname,Passwd}|UnamePasswds], Uarg, Parg, Req) ->
 		Uarg ->
 			case Passwd of
 				Parg ->
-					{ok, [_, _, _, {MaxAge}]} = file:consult(?CONF),
-					{ok, Req0} = cowboy_http_req:set_resp_cookie(Uname, gseconds_b(), [{max_age, MaxAge}, {path, "/"}, {secure, true}, {http_only, true}], Req),
+					{ok, Req0} = cowboy_http_req:set_resp_cookie(Uname, gseconds_b(), [{max_age, ?MAXAGE}, {path, "/"}, {secure, true}, {http_only, true}], Req),
 					{pass, Req0};
 				_ ->
 					checkCreds(UnamePasswds,Uarg,Parg,Req)
@@ -177,7 +177,7 @@ handle(Req, State) ->
 					Creds=login_is(),
 					case is_list(Creds) of
 						true ->
-							{Cred,Req0}=checkCreds(Creds, Req, State),
+							{Cred, Req0}=checkCreds(Creds, Req, State),
 							case Cred of
 								fail ->
 									app_login(Req0, State);
@@ -560,7 +560,7 @@ ajfun0 = function() {
 		type: 'GET',
 		data: 'tablename=", ?DB/binary, "&s=0",(setfields())/binary,",
 		success: function(data) {
-alert('ajfun0' );
+
             if (arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') > -1) {
                 alert('Login Expired - Please Re-Login...');
                 location.href='/",ServerPath/binary,"'
@@ -672,7 +672,7 @@ table2(RowsPerPage, ServerPath, Fields, S, Result, Res2) ->
 	Count=list_to_binary(integer_to_list(length(Res2))),
 	case Count of
 		<<"0">> ->
-			<<"<br /><table style='background-color:black; color:yellow;'><tr><td>No matches found...</td></tr></table>">>;
+			<<"<br /><table style='background-color:black; color:red;'><tr><td>No matches found...</td></tr></table>">>;
 		_ ->
 			Headers = ?TABLE,
 			Nav= <<"
