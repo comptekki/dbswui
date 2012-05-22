@@ -699,7 +699,18 @@ mk_tab(Headers, Rows, Fields, ServerPath) ->
 mk_tab2([RowTuple|Rows],Hdrs,Fields, ServerPath) ->
 	[Id|Row]=tuple_to_list(RowTuple),
 %	[{Field,_Srch}|_Rest]=Fields,
-	<<"
+	{ok, Re} = re:compile("/edit",[caseless]),
+	MatchVal = re:run(ServerPath, Re),
+	SPath=case MatchVal of
+			  {match, _} ->
+				  <<"edit">>;
+			  _  -> 
+				  <<>>
+		  end,
+	<<
+(case MatchVal of
+ {match, _} ->
+<<"
 <script>
 $(document).ready(function(){
     $('#h", Id/binary, "').click(function() {
@@ -775,18 +786,20 @@ $(document).ready(function(){
 ",
 (jsedit3(Id,Fields))/binary,
 "
-//        $('#c", Id/binary, "').click();
     })
 
 })
-</script>
-
+</script>">>;
+	_ ->
+		 <<>>
+end)/binary,
+"
 <table id='t", Id/binary, "' class='record datat'>",
-	  (mk_tab3(1,Id,Row,Hdrs,Fields))/binary,
+	  (mk_tab3(1, Id, Row, Hdrs, Fields, SPath))/binary,
 	  "</table>
 ",
-	  (mk_tab2(Rows,Hdrs,Fields, ServerPath))/binary>>;
-mk_tab2([],_Hdrs,_Fields, _ServerPath) ->
+	  (mk_tab2(Rows, Hdrs, Fields, ServerPath))/binary>>;
+mk_tab2([], _Hdrs, _Fields, _ServerPath) ->
 	<<>>.
 
 %
@@ -840,13 +853,15 @@ jsedit3(_Id,[]) ->
 
 %
 
-mk_tab3(First,Id,[Item|RestRow],[Hdr|RestHdrs],[{Field,Srch}|Fields]) ->
+mk_tab3(First, Id, [Item|RestRow], [Hdr|RestHdrs], [{Field,Srch}|Fields], SPath) ->
 	<<
 "
 <tr>
 ",
-	  (case First of
-		  1 -> <<"
+	  (case SPath of
+		  <<"edit">> ->
+			   case First of
+				   1 -> <<"
 <th style='width:50px;' rowspan='8'>
   <a href='javascript:void(0)' id='h", Id/binary, "'>", Id/binary, "</a>
   <input id='d", Id/binary, "' type='button' name='d", Id/binary, "' value='Delete' class=''><br />
@@ -854,8 +869,11 @@ mk_tab3(First,Id,[Item|RestRow],[Hdr|RestHdrs],[{Field,Srch}|Fields]) ->
   <input id='c", Id/binary, "' type='button' name='c", Id/binary, "' value='Cancel' class='ebutton modal-cancel'>
 </th>
 ">>;
-		  _ -> <<>>
-	  end)/binary,
+				   _ -> 
+					   <<>>
+			   end;
+		   _ -> <<>>
+	   end)/binary,
 	  Hdr/binary,
 	  "
 <td>
@@ -867,8 +885,8 @@ mk_tab3(First,Id,[Item|RestRow],[Hdr|RestHdrs],[{Field,Srch}|Fields]) ->
 <input id='i_", Field/binary, "_", Id/binary, "' class='dbinput' name='' maxlength='", ?MAX_LENB/binary, "' value='", (list_to_binary(htmlize(binary_to_list(Item))))/binary, "'>
 </td>
 </tr>",
-	  (mk_tab3(First+1,Id,RestRow,RestHdrs,Fields))/binary>>;
-mk_tab3(_,_Id,[],_Hdrs,_Fields) ->
+	  (mk_tab3(First+1, Id, RestRow, RestHdrs, Fields, SPath))/binary>>;
+mk_tab3(_, _Id, [], _Hdrs, _Fields, _SPath) ->
 	<<>>.
 
 htmlize([H|T]) ->
