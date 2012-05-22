@@ -31,7 +31,7 @@ fwDenyMessage(Req, State) ->
 	{ok, Req2} = cowboy_http_req:reply(200, [{'Content-Type', <<"text/html">>}],
 <<"<html>
 <head> 
-<title>DB Login</title>
+<title>", ?DBTITLE, "</title>
 <style>
 body {background-color:black; color:yellow}
 </style>
@@ -118,7 +118,7 @@ app_login(Req, State) ->
 					{ok, Req2} = cowboy_http_req:reply(200, [{'Content-Type', <<"text/html">>}],
 <<"<html>
 <head> 
-<title>DB Login</title>
+<title>", ?DBTITLE, "</title>
 
 <meta Http-Equiv='Cache-Control' Content='no-cache'>
 <meta Http-Equiv='Pragma' Content='no-cache'>
@@ -139,7 +139,7 @@ $('#uname').focus();
 <body>
 <form action='/db/edit' method='post'>
 <div>
-  <h3>DB Login</h3>
+  <h3>", ?DBTITLE, " Login</h3>
 </div>
 <div class='unamed'>
   <div class='unamed-t'>Username: </div><div><input id='uname' type='text' name='uname'></div>
@@ -157,7 +157,7 @@ $('#uname').focus();
 					{ok, Req2} = cowboy_http_req:reply(200, [{'Content-Type', <<"text/html">>}],
 <<"<html>
 <head> 
-<title>DB Login</title>
+<title>", ?DBTITLE, " Login</title>
 </head>
 <body>
 hi
