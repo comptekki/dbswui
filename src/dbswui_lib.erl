@@ -200,7 +200,7 @@ ajfun0 = function() {
 		data: 'tablename=", ?DB/binary, "&s=0",(setfields())/binary,",
 		success: function(data) {
 
-            if (arguments[2].responseText.indexOf('DB Login') > -1 && arguments[2].responseText.indexOf('html') > -1) {
+            if (arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') > -1) {
                 alert('Login Expired - Please Re-Login...');
                 location.href='/",ServerPath/binary,"'
             }
@@ -253,7 +253,7 @@ js4(ServerPath) ->
 			data: 'tablename=", ?DB/binary, "&s=1", (setfields_single())/binary, ",
 			success: function(data) {
 
-                if ((arguments[2].responseText.indexOf('DB Login') > -1) && (arguments[2].responseText.indexOf('html') == 1)) {
+                if ((arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1) && (arguments[2].responseText.indexOf('html') == 1)) {
                     alert('Login Expired - Please Re-Login...');
                     location.href='/",ServerPath/binary,"'
                 }
@@ -382,7 +382,7 @@ $(document).ready(function() {
 			data: 'tablename=", ?DB/binary, "&s=", (s_fields(S))/binary, ",
 			success: function(data) {
 
-                   if (arguments[2].responseText.indexOf('DB Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
+                   if (arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
                        alert('Login Expired - Please Re-Login...');
                        location.href='/",ServerPath/binary,"'
                    }
@@ -443,7 +443,7 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 				 data: 'tablename=", ?DB/binary, "&s=", (s_fields(S))/binary, ",
 				 success: function(data) {
 
-                   if (arguments[2].responseText.indexOf('DB Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
+                   if (arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
                        alert('Login Expired - Please Re-Login...');
                        location.href='/",ServerPath/binary,"'
                    }
@@ -467,7 +467,7 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 				 data: 'tablename=", ?DB/binary, "&s=", (s_fields(S))/binary, ",
 				 success: function(data) {
 
-                   if (arguments[2].responseText.indexOf('DB Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
+                   if (arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
                        alert('Login Expired - Please Re-Login...');
                        location.href='/",ServerPath/binary,"'
                    }
@@ -527,7 +527,7 @@ $(document).ready(function(){
             else 
                 ajfun0();
 
-            if (!(arguments[2].responseText.indexOf('DB Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
+            if (!(arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
                 alert(arguments[2].responseText)
 
 		},
@@ -713,7 +713,7 @@ $(document).ready(function(){
                    else 
                        ajfun0();
 
-                   if (!(arguments[2].responseText.indexOf('DB Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
+                   if (!(arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
                        alert(arguments[2].responseText)
 
 		       },
@@ -744,7 +744,7 @@ $(document).ready(function(){
             else 
                 ajfun0();
 
-            if (!(arguments[2].responseText.indexOf('DB Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
+            if (!(arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login) > -1 && arguments[2].responseText.indexOf('html') == 1))
                 alert(arguments[2].responseText)
 
 		},
