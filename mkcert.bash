@@ -1,10 +1,10 @@
 #!/bin/bash
-if [ -a priv/ssl/cert.pm -o -a priv/ssl/key.pm ]
+if [ -a ./priv/ssl/cert.pem -o -a ./priv/ssl/key.pem ]
 then
 
 echo
-echo "priv/ssl/cert.pm and/or priv/ssl/key.pm already exist."
-echo "Delete priv/ssl/cert.pm or priv/ssl/key.pm to create new ones."
+echo "priv/ssl/cert.pem and/or priv/ssl/key.pem already exist."
+echo "Delete priv/ssl/cert.pem or priv/ssl/key.pem to create new ones."
 echo
 
 else
