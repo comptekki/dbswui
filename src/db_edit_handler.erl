@@ -31,7 +31,7 @@ fwDenyMessage(Req, State) ->
 	{ok, Req2} = cowboy_http_req:reply(200, [{'Content-Type', <<"text/html">>}],
 <<"<html>
 <head> 
-<title>DB1 Login</title>
+<title>DB Login</title>
 <style>
 body {background-color:black; color:yellow}
 </style>
@@ -118,7 +118,7 @@ app_login(Req, State) ->
 					{ok, Req2} = cowboy_http_req:reply(200, [{'Content-Type', <<"text/html">>}],
 <<"<html>
 <head> 
-<title>DB1 Login</title>
+<title>DB Login</title>
 
 <meta Http-Equiv='Cache-Control' Content='no-cache'>
 <meta Http-Equiv='Pragma' Content='no-cache'>
@@ -137,9 +137,9 @@ $('#uname').focus();
 </script>
 </head>
 <body>
-<form action='/db1/edit' method='post'>
+<form action='/db/edit' method='post'>
 <div>
-  <h3>DB1 Login</h3>
+  <h3>DB Login</h3>
 </div>
 <div class='unamed'>
   <div class='unamed-t'>Username: </div><div><input id='uname' type='text' name='uname'></div>
@@ -157,7 +157,7 @@ $('#uname').focus();
 					{ok, Req2} = cowboy_http_req:reply(200, [{'Content-Type', <<"text/html">>}],
 <<"<html>
 <head> 
-<title>DB1 Login</title>
+<title>DB Login</title>
 </head>
 <body>
 hi
@@ -195,7 +195,7 @@ handle(Req, State) ->
 							end
 					end;
 				_ ->
-					{ok,Req1} = cowboy_http_req:set_resp_header('Location', <<"/db1">>, Req),
+					{ok,Req1} = cowboy_http_req:set_resp_header('Location', <<"/db">>, Req),
 					{ok, Req2} = cowboy_http_req:reply(302, [], <<>>, Req1),
 					{ok, Req2, State}
 			end;
