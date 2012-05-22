@@ -4,7 +4,7 @@ all: app
 
 app: get-deps
 	@./rebar compile
-#	@./mkcert.bash
+	@./mkcert.bash
 
 get-deps:
 	@./rebar get-deps
