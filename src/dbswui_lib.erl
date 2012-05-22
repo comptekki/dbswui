@@ -200,7 +200,7 @@ ajfun0 = function() {
 		data: 'tablename=", ?DB/binary, "&s=0",(setfields())/binary,",
 		success: function(data) {
 
-            if (arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') > -1) {
+            if (arguments[2].responseText.indexOf('DB Login') > -1 && arguments[2].responseText.indexOf('html') > -1) {
                 alert('Login Expired - Please Re-Login...');
                 location.href='/",ServerPath/binary,"'
             }
@@ -253,7 +253,7 @@ js4(ServerPath) ->
 			data: 'tablename=", ?DB/binary, "&s=1", (setfields_single())/binary, ",
 			success: function(data) {
 
-                if ((arguments[2].responseText.indexOf('DB1 Login') > -1) && (arguments[2].responseText.indexOf('html') == 1)) {
+                if ((arguments[2].responseText.indexOf('DB Login') > -1) && (arguments[2].responseText.indexOf('html') == 1)) {
                     alert('Login Expired - Please Re-Login...');
                     location.href='/",ServerPath/binary,"'
                 }
@@ -382,7 +382,7 @@ $(document).ready(function() {
 			data: 'tablename=", ?DB/binary, "&s=", (s_fields(S))/binary, ",
 			success: function(data) {
 
-                   if (arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
+                   if (arguments[2].responseText.indexOf('DB Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
                        alert('Login Expired - Please Re-Login...');
                        location.href='/",ServerPath/binary,"'
                    }
@@ -391,15 +391,6 @@ $(document).ready(function() {
                        activeElement.focus()
                    }
 
-
-//                   if (view)
-//                       ajfun1()
-//                   else 
-//                       ajfun0();
-
-//                   alert(arguments[2].responseText);
-
-//                $('#data').html(arguments[2].responseText);
 			},
 			error:function(XMLHttpRequest, textStatus, errorThrown) {
 				alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown)
@@ -452,7 +443,7 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 				 data: 'tablename=", ?DB/binary, "&s=", (s_fields(S))/binary, ",
 				 success: function(data) {
 
-                   if (arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
+                   if (arguments[2].responseText.indexOf('DB Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
                        alert('Login Expired - Please Re-Login...');
                        location.href='/",ServerPath/binary,"'
                    }
@@ -460,16 +451,6 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
                        $('#data').html(arguments[2].responseText);
                        activeElement.focus()
                    }
-
-
-//                   if (view)
-//                       ajfun1()
-//                   else 
-//                       ajfun0();
-
-//                   alert(arguments[2].responseText);
-
-//                   $('#data').html(arguments[2].responseText);
 
 				 },
 				 error:function(XMLHttpRequest, textStatus, errorThrown) {
@@ -486,7 +467,7 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 				 data: 'tablename=", ?DB/binary, "&s=", (s_fields(S))/binary, ",
 				 success: function(data) {
 
-                   if (arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
+                   if (arguments[2].responseText.indexOf('DB Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
                        alert('Login Expired - Please Re-Login...');
                        location.href='/",ServerPath/binary,"'
                    }
@@ -494,16 +475,6 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
                        $('#data').html(arguments[2].responseText);
                        activeElement.focus()
                    }
-
-
-//                   if (view)
-//                       ajfun1()
-//                   else 
-//                       ajfun0();
-
-//                   alert(arguments[2].responseText);
-
-//                   $('#data').html(arguments[2].responseText);
 
 				 },
 				 error:function(XMLHttpRequest, textStatus, errorThrown) {
@@ -556,7 +527,7 @@ $(document).ready(function(){
             else 
                 ajfun0();
 
-            if (!(arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
+            if (!(arguments[2].responseText.indexOf('DB Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
                 alert(arguments[2].responseText)
 
 		},
@@ -567,7 +538,7 @@ $(document).ready(function(){
 
     $('#c_add_rec').click();
   });
-
+1
 })
 </script>
 
@@ -617,6 +588,8 @@ setf2a([]) ->
 %
 
 mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
+    {ok, Re} = re:compile("/edit",[caseless]),
+    MatchVal = re:run(ServerPath, Re),
     <<"
 <input id='s' type='hidden' value='0'>
 <input id='range_input' type='hidden' value='",RowsPerPage/binary,"'>
@@ -624,11 +597,15 @@ mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
 	  (case Hdr of
 			<<"1">> -> <<>>;
 			_ ->
-				<<"
+				<<(case MatchVal of
+					   {match, _} -> <<"
 <a href='logout' id='logout'>logout</a>
 <a href='javascript:void(0)' id='add_rec'>add</a>
 ",
-(add_rec(?TABLE, ServerPath))/binary,
+									   (add_rec(?TABLE, ServerPath))/binary>>;
+					   _  -> 
+						   <<>>
+				   end)/binary,
 "
 <div class='brk spc'>
 <table>
@@ -736,7 +713,7 @@ $(document).ready(function(){
                    else 
                        ajfun0();
 
-                   if (!(arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
+                   if (!(arguments[2].responseText.indexOf('DB Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
                        alert(arguments[2].responseText)
 
 		       },
@@ -767,7 +744,7 @@ $(document).ready(function(){
             else 
                 ajfun0();
 
-            if (!(arguments[2].responseText.indexOf('DB1 Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
+            if (!(arguments[2].responseText.indexOf('DB Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
                 alert(arguments[2].responseText)
 
 		},
@@ -879,10 +856,17 @@ mk_tab3(First, Id, [Item|RestRow], [Hdr|RestHdrs], [{Field,Srch}|Fields], SPath)
 <td>
 <div id='d_", Field/binary, "_", Id/binary, "'>",
 	  (hl(Item,Srch))/binary,
-"
-</div>
+"</div>",
+(case SPath of
+	 <<"edit">> -> 
+<<"
 <input id='ib_", Field/binary, "_", Id/binary, "' class='dbinput' name='' maxlength='", ?MAX_LENB/binary, "' value='", (list_to_binary(htmlize(binary_to_list(Item))))/binary, "'>
 <input id='i_", Field/binary, "_", Id/binary, "' class='dbinput' name='' maxlength='", ?MAX_LENB/binary, "' value='", (list_to_binary(htmlize(binary_to_list(Item))))/binary, "'>
+">>;
+	 _ ->
+		 <<>>				 
+end)/binary,
+"
 </td>
 </tr>",
 	  (mk_tab3(First+1, Id, RestRow, RestHdrs, Fields, SPath))/binary>>;
