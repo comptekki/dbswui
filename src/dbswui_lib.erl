@@ -97,6 +97,12 @@ return_top_page(ServerPath, Hdr) ->
 	end.
 %
 
+now_bin() ->
+	{N1,N2,N3}=now(),
+	list_to_binary(integer_to_list(N1)++integer_to_list(N2)++integer_to_list(N3)).
+
+%
+
 get_top() ->
 <<"<html>
 <head>
@@ -108,7 +114,7 @@ get_top() ->
 
 <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/> 
 <link rel='icon' href='/static/favicon.ico' type='image/x-icon' />
-<link href='/static/db.css' media='screen' rel='stylesheet' type='text/css' />
+<link href='/static/db.css?", (now_bin())/binary, "' media='screen' rel='stylesheet' type='text/css' />
 ">>.
 
 %
@@ -316,28 +322,25 @@ table2(RowsPerPage, ServerPath, Fields, S, Result, Res2, N) ->
 		_ ->
 			Headers = ?TABLE,
 			Nav= <<"
+
+<div class='nav'>
+",
+(mk_nav(Count, RowsPerPage, ServerPath, S))/binary,
+"
+</div>
+">>, % end of Nav
+<<"
 <script type='text/javascript'>
 
 var view = true;
 var activeElement = null;
 
 $(document).ready(function() {
-    $('#n", N/binary, "').removeClass('tdhln');
-    $('#n", N/binary, "').addClass('tdhl')
+    $('#n", N/binary, "').removeClass('dhln');
+    $('#n", N/binary, "').addClass('dhl')
 
 })
 </script>
-
-<div class='nav'>
-<table>
-<tr>",
-(mk_nav(Count, RowsPerPage, ServerPath, S))/binary,
-"
-</tr>
-</table>
-</div>
-">>, % end of Nav
-<<"
 
 <div id='riv' class='brk'>
 <table>
@@ -449,7 +452,7 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 	OffSet = list_to_binary(integer_to_list((Start-1)*RowsPerPage)),
 	case Start==End of
 		false -> 
-			<<"<td id='n", StartB/binary, "' class='tdhln'><a href='javascript:void(0)' id='", StartB/binary, "'
+			<<"<div id='n", StartB/binary, "' class='dhln'><a href='javascript:void(0)' id='", StartB/binary, "'
 				onclick=\"$('#offset').val(", OffSet/binary,");
 			$.ajax({
 				 url: '/", ServerPath/binary, "',
@@ -472,12 +475,12 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 				 }
 		   });
 mk_nav_norm(", EndB/binary, ");
-$('#n", StartB/binary, "').removeClass('tdhln');
-$('#n", StartB/binary, "').addClass('tdhl');\">
-			", StartB/binary,"</a></td>", 
+$('#n", StartB/binary, "').removeClass('dhln');
+$('#n", StartB/binary, "').addClass('dhl');\">
+			", StartB/binary,"</a></div>", 
 			  (build_nav(Start+1,End, RowsPerPage, ServerPath, S))/binary>>;
 		_ ->
-			<<"<td id='n", StartB/binary, "' class='tdhln'><a href='javascript:void(0)' id='", StartB/binary, "'
+			<<"<div id='n", StartB/binary, "' class='dhln'><a href='javascript:void(0)' id='", StartB/binary, "'
 				onclick=\"$('#offset').val(", OffSet/binary,");
 			$.ajax({
 				 url: '/", ServerPath/binary, "',
@@ -500,9 +503,9 @@ $('#n", StartB/binary, "').addClass('tdhl');\">
 				 }
 		   });
 mk_nav_norm(", EndB/binary, ");
-$('#n", StartB/binary, "').removeClass('tdhln');
-$('#n", StartB/binary, "').addClass('tdhl');\">
-			", StartB/binary,"</a></td>">>
+$('#n", StartB/binary, "').removeClass('dhln');
+$('#n", StartB/binary, "').addClass('dhl');\">
+			", StartB/binary,"</a></div>">>
 	end.
 	
 %	
