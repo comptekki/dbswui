@@ -1,6 +1,6 @@
 -module(dbswui_lib).
 
--export([return_top_page/2, select_fields/1, select_pattern/1, select_pattern/3, table/6, escape0/1]).
+-export([return_top_page/2, select_fields/1, select_pattern/1, select_pattern/3, table/7, escape0/1]).
 
 -include("db.hrl").
 
@@ -147,7 +147,8 @@ $(document).ready(function() {
     });
 
     $('#single_input_db').focus();
-    ajfun1()
+    ajfun1();
+
 })
 </script>
 
@@ -197,7 +198,7 @@ ajfun0 = function() {
 	$.ajax({
 		url: '/",ServerPath/binary,"',
 		type: 'GET',
-		data: 'tablename=", ?DB/binary, "&s=0",(setfields())/binary,",
+		data: 'tablename=", ?DB/binary,"&n=1&s=0",(setfields())/binary,",
 		success: function(data) {
 
             if (arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') > -1) {
@@ -250,7 +251,7 @@ js4(ServerPath) ->
 		$.ajax({
 			url: '/",ServerPath/binary, "',
 			type: 'GET',
-			data: 'tablename=", ?DB/binary, "&s=1", (setfields_single())/binary, ",
+			data: 'tablename=", ?DB/binary, "&n=1&s=1", (setfields_single())/binary, ",
 			success: function(data) {
 
                 if ((arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1) && (arguments[2].responseText.indexOf('html') == 1)) {
@@ -285,7 +286,7 @@ js4(ServerPath) ->
 		
 % Build the result page.
 
-table(Sp, SpOffset, RowsPerPage, ServerPath, Fields, S) ->
+table(Sp, SpOffset, RowsPerPage, ServerPath, Fields, S, N) ->
 	case do_query(SpOffset) of
 		{_, error} ->
 				<<"
@@ -302,12 +303,12 @@ table(Sp, SpOffset, RowsPerPage, ServerPath, Fields, S) ->
 </table>
 ">>;
 			{_, Res2} ->
-					table2(RowsPerPage, ServerPath, Fields, S, Result, Res2)
+					table2(RowsPerPage, ServerPath, Fields, S, Result, Res2, N)
 			end
 	end.
 %
 
-table2(RowsPerPage, ServerPath, Fields, S, Result, Res2) ->
+table2(RowsPerPage, ServerPath, Fields, S, Result, Res2, N) ->
 	Count=list_to_binary(integer_to_list(length(Res2))),
 	case Count of
 		<<"0">> ->
@@ -315,6 +316,18 @@ table2(RowsPerPage, ServerPath, Fields, S, Result, Res2) ->
 		_ ->
 			Headers = ?TABLE,
 			Nav= <<"
+<script type='text/javascript'>
+
+var view = true;
+var activeElement = null;
+
+$(document).ready(function() {
+    $('#n", N/binary, "').removeClass('tdhln');
+    $('#n", N/binary, "').addClass('tdhl')
+
+})
+</script>
+
 <div class='nav'>
 <table>
 <tr>",
@@ -379,7 +392,7 @@ $(document).ready(function() {
 		$.ajax({
 			url: '/",ServerPath/binary,"',
 			type: 'GET',
-			data: 'tablename=", ?DB/binary, "&s=", (s_fields(S))/binary, ",
+			data: 'tablename=", ?DB/binary, "&n=1&s=", (s_fields(S))/binary, ",
 			success: function(data) {
 
                    if (arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
@@ -432,15 +445,16 @@ mk_nav(CountB, RowsPerPageB, ServerPath, S) ->
 
 build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 	StartB=list_to_binary(integer_to_list(Start)),
+	EndB=list_to_binary(integer_to_list(End)),
 	OffSet = list_to_binary(integer_to_list((Start-1)*RowsPerPage)),
 	case Start==End of
 		false -> 
-			<<"<td><a href='javascript:void(0)' id='", StartB/binary, "'
+			<<"<td id='n", StartB/binary, "' class='tdhln'><a href='javascript:void(0)' id='", StartB/binary, "'
 				onclick=\"$('#offset').val(", OffSet/binary,");
 			$.ajax({
 				 url: '/", ServerPath/binary, "',
 				 type: 'GET',
-				 data: 'tablename=", ?DB/binary, "&s=", (s_fields(S))/binary, ",
+				 data: 'tablename=", ?DB/binary, "&n=", StartB/binary, "&s=", (s_fields(S))/binary, ",
 				 success: function(data) {
 
                    if (arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
@@ -456,15 +470,19 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 				 error:function(XMLHttpRequest, textStatus, errorThrown) {
 				  alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
 				 }
-		   });$(':input:text:first').focus();\">
-			", StartB/binary,"</a></td>", (build_nav(Start+1,End, RowsPerPage, ServerPath, S))/binary>>;
+		   });
+mk_nav_norm(", EndB/binary, ");
+$('#n", StartB/binary, "').removeClass('tdhln');
+$('#n", StartB/binary, "').addClass('tdhl');\">
+			", StartB/binary,"</a></td>", 
+			  (build_nav(Start+1,End, RowsPerPage, ServerPath, S))/binary>>;
 		_ ->
-			<<"<td><a href='javascript:void(0)' id='", StartB/binary, "'
+			<<"<td id='n", StartB/binary, "' class='tdhln'><a href='javascript:void(0)' id='", StartB/binary, "'
 				onclick=\"$('#offset').val(", OffSet/binary,");
 			$.ajax({
 				 url: '/", ServerPath/binary, "',
 				 type: 'GET',
-				 data: 'tablename=", ?DB/binary, "&s=", (s_fields(S))/binary, ",
+				 data: 'tablename=", ?DB/binary, "&n=", StartB/binary, "&s=", (s_fields(S))/binary, ",
 				 success: function(data) {
 
                    if (arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
@@ -480,7 +498,10 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 				 error:function(XMLHttpRequest, textStatus, errorThrown) {
 				  alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
 				 }
-		   });$(':input:text:first').focus();\">
+		   });
+mk_nav_norm(", EndB/binary, ");
+$('#n", StartB/binary, "').removeClass('tdhln');
+$('#n", StartB/binary, "').addClass('tdhl');\">
 			", StartB/binary,"</a></td>">>
 	end.
 	
@@ -518,7 +539,7 @@ $(document).ready(function(){
 	$.ajax({
 		url: '/",ServerPath/binary,"',
 		type: 'GET',
-		data: 'tablename=", ?DB/binary, "&s=3",
+		data: 'tablename=", ?DB/binary, "&n=1&s=3",
  (setfields2a(Fields))/binary,
 ",
    success: function(data) {
@@ -706,7 +727,7 @@ $(document).ready(function(){
             $.ajax({
 		       url: '/",ServerPath/binary,"',
 		       type: 'GET',
-               data: 'tablename=", ?DB/binary, "&s=4&rpp=0&offset=0&id=", Id/binary, "',
+               data: 'tablename=", ?DB/binary, "&n=1&s=4&rpp=0&offset=0&id=", Id/binary, "',
                success: function(data) {
                    if (view)
                        ajfun1()
@@ -737,7 +758,7 @@ $(document).ready(function(){
 	$.ajax({
 		url: '/",ServerPath/binary,"',
 		type: 'GET',
-		data: 'tablename=", ?DB/binary, "&s=2", (setfields2(Id, Fields))/binary, ",
+		data: 'tablename=", ?DB/binary, "&n=1&s=2", (setfields2(Id, Fields))/binary, ",
 		success: function(data) {
             if (view)
                 ajfun1()
