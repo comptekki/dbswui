@@ -2,7 +2,7 @@
 -behaviour(cowboy_http_handler).
 -export([init/3, handle/2, terminate/2]).
 
--import(dbswui_lib, [return_top_page/2, select_fields/1, select_pattern/1, select_pattern/3, table/6, escape0/1]).
+-import(dbswui_lib, [return_top_page/2, select_fields/1, select_pattern/1, select_pattern/3, table/7, escape0/1]).
 
 -include("db.hrl").
 
@@ -31,7 +31,7 @@ fwDenyMessage(Req, State) ->
 	{ok, Req2} = cowboy_http_req:reply(200, [{'Content-Type', <<"text/html">>}],
 <<"<html>
 <head> 
-<title>", ?DBTITLE, "</title>
+<title>", ?DBTITLE/binary, "</title>
 <style>
 body {background-color:black; color:yellow}
 </style>
@@ -118,7 +118,7 @@ app_login(Req, State) ->
 					{ok, Req2} = cowboy_http_req:reply(200, [{'Content-Type', <<"text/html">>}],
 <<"<html>
 <head> 
-<title>", ?DBTITLE, "</title>
+<title>", ?DBTITLE/binary, "</title>
 
 <meta Http-Equiv='Cache-Control' Content='no-cache'>
 <meta Http-Equiv='Pragma' Content='no-cache'>
@@ -139,7 +139,7 @@ $('#uname').focus();
 <body>
 <form action='/db/edit' method='post'>
 <div>
-  <h3>", ?DBTITLE, " Login</h3>
+  <h3>", ?DBTITLE/binary, " Login</h3>
 </div>
 <div class='unamed'>
   <div class='unamed-t'>Username: </div><div><input id='uname' type='text' name='uname'></div>
@@ -157,7 +157,7 @@ $('#uname').focus();
 					{ok, Req2} = cowboy_http_req:reply(200, [{'Content-Type', <<"text/html">>}],
 <<"<html>
 <head> 
-<title>", ?DBTITLE, " Login</title>
+<title>", ?DBTITLE/binary, " Login</title>
 </head>
 <body>
 hi
@@ -213,56 +213,57 @@ app_front_end(Req0, State) ->
 	{S, Req3} = cowboy_http_req:qs_val(<<"s">>, Req2),
 	{Table, Req4} = cowboy_http_req:qs_val(<<"tablename">>, Req3),
 
-			  Val = case Table of
-				  ?DB ->
-					  {Rpp, Req5} = cowboy_http_req:qs_val(<<"rpp">>, Req4),
-					  {Offset, Req6} = cowboy_http_req:qs_val(<<"offset">>, Req5),
-					  {FieldsAll, Req7} = cowboy_http_req:qs_vals(Req6),
-					  [_,_,_,_|RawFields] = FieldsAll,
-					  Fields=select_fields(RawFields),
-					  case S of
-						  <<"4">> -> 
-							  Ep=delete_pattern(Table, Fields),
-							  case do_delete(Ep) of
-								  {_, error} ->
-									  <<"Error Deleting Record!">>;
-								  _ ->
-									  <<"Record Deleted!">>
-							  end;
-						  <<"3">> -> 
-							  Ep=insert_pattern(Table, Fields),
-							  case do_insert(Ep) of
-								  {_, error} ->
-									  <<"Error Adding Data!">>;
-								  _ ->
-									  <<"Data Added!">>
-							  end;
-						  <<"2">> ->
-							  Ep=update_pattern(Table, Fields),
-							  case do_update(Ep) of
-								  {_, error} ->
-									  <<"Error Saving Data!">>;
-								  _ ->
-									  <<"Data Updated!">>
-							  end;
-						  _ ->
-							  Sp =
-								  case Fields of
-									  [] -> (catch select_pattern(Table));
-									  _  -> (catch select_pattern(Table, Fields, S))
-								  end,
-							  SpOffset = <<Sp/binary, " offset ", Offset/binary, " limit ", Rpp/binary>>,
-							  <<(table(Sp, SpOffset, Rpp, ServerPath, Fields, S))/binary>>
-					  end;
-				  _ ->
-					  Req7 = Req4,
-					  case S of
-						  <<"1">> ->
-							  <<(return_top_page(ServerPath, <<"1">>))/binary>>;
-						  _ ->
-							  <<(return_top_page(ServerPath, <<"0">>))/binary>>
-					  end
-			  end,
+	Val = case Table of
+			  ?DB ->
+				  {Rpp, Req5} = cowboy_http_req:qs_val(<<"rpp">>, Req4),
+				  {Offset, Req6} = cowboy_http_req:qs_val(<<"offset">>, Req5),
+				  {N, Req66} = cowboy_http_req:qs_val(<<"n">>, Req6),
+				  {FieldsAll, Req7} = cowboy_http_req:qs_vals(Req66),
+				  [_,_,_,_,_|RawFields] = FieldsAll,
+				  Fields=select_fields(RawFields),
+				  case S of
+					  <<"4">> -> 
+						  Ep=delete_pattern(Table, Fields),
+						  case do_delete(Ep) of
+							  {_, error} ->
+								  <<"Error Deleting Record!">>;
+							  _ ->
+								  <<"Record Deleted!">>
+						  end;
+					  <<"3">> -> 
+						  Ep=insert_pattern(Table, Fields),
+						  case do_insert(Ep) of
+							  {_, error} ->
+								  <<"Error Adding Data!">>;
+							  _ ->
+								  <<"Data Added!">>
+						  end;
+					  <<"2">> ->
+						  Ep=update_pattern(Table, Fields),
+						  case do_update(Ep) of
+							  {_, error} ->
+								  <<"Error Saving Data!">>;
+							  _ ->
+								  <<"Data Updated!">>
+						  end;
+					  _ ->
+						  Sp =
+							  case Fields of
+								  [] -> (catch select_pattern(Table));
+								  _  -> (catch select_pattern(Table, Fields, S))
+							  end,
+						  SpOffset = <<Sp/binary, " offset ", Offset/binary, " limit ", Rpp/binary>>,
+						  <<(table(Sp, SpOffset, Rpp, ServerPath, Fields, S, N))/binary>>
+				  end;
+			  _ ->
+				  Req7 = Req4,
+				  case S of
+					  <<"1">> ->
+						  <<(return_top_page(ServerPath, <<"1">>))/binary>>;
+					  _ ->
+						  <<(return_top_page(ServerPath, <<"0">>))/binary>>
+				  end
+		  end,
 	{ok, Req8} = cowboy_http_req:reply(200, [], Val, Req7),
 	{ok, Req8, State}.
 
