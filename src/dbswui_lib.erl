@@ -207,13 +207,14 @@ ajfun0 = function() {
 		data: 'tablename=", ?DB/binary,"&n=1&s=0",(setfields())/binary,",
 		success: function(data) {
 
-            if (arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') > -1) {
+            if (arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
                 alert('Login Expired - Please Re-Login...');
                 location.href='/",ServerPath/binary,"'
             }
             else {
                 $('#data').html(arguments[2].responseText);
-                activeElement.focus()
+                if (activeElement != null)
+                    activeElement.focus()
             }
 
 		},
@@ -267,8 +268,8 @@ js4(ServerPath) ->
                 else {
 
                     $('#data').html(arguments[2].responseText);
-                    activeElement.focus()
-
+                    if (activeElement != null)
+                        activeElement.focus()
                 }
 
 		    },
@@ -404,7 +405,8 @@ $(document).ready(function() {
                    }
                    else {
                        $('#data').html(arguments[2].responseText);
-                       activeElement.focus()
+                       if (activeElement != null)
+                           activeElement.focus()
                    }
 
 			},
@@ -466,7 +468,8 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
                    }
                    else {
                        $('#data').html(arguments[2].responseText);
-                       activeElement.focus()
+                       if (activeElement != null)
+                           activeElement.focus()
                    }
 
 				 },
@@ -494,7 +497,8 @@ $('#n", StartB/binary, "').addClass('dhl');\">
                    }
                    else {
                        $('#data').html(arguments[2].responseText);
-                       activeElement.focus()
+                       if (activeElement != null)
+                           activeElement.focus()
                    }
 
 				 },
@@ -653,6 +657,7 @@ mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
 <div id='click_qsview' class='click'>
     <a href='javascript:void(0)'>Click this line to use the Quick Search</a>
 </div>
+<div class='brk spc5'></div>
 <div id='fview'>
 <table>
 <tr>
