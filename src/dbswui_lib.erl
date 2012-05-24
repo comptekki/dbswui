@@ -322,14 +322,25 @@ table2(RowsPerPage, ServerPath, Fields, S, Result, Res2, N) ->
 			<<"<br /><table style='background-color:black; color:red;'><tr><td>No matches found...</td></tr></table>">>;
 		_ ->
 			Headers = ?TABLE,
-			Nav= <<"
+			NavT= <<"
 
-<div class='nav'>
+<div class='navt'>
 ",
-(mk_nav(Count, RowsPerPage, ServerPath, S))/binary,
+(mk_nav(Count, RowsPerPage, ServerPath, S, <<"t">>))/binary,
 "
 </div>
-">>, % end of Nav
+">>, % end of NavT
+
+			NavB= <<"
+
+<div class='navb'>
+",
+(mk_nav(Count, RowsPerPage, ServerPath, S, <<"b">>))/binary,
+"
+</div>
+">>, % end of NavB
+
+
 <<"
 <script type='text/javascript'>
 
@@ -337,8 +348,10 @@ var view = true;
 var activeElement = null;
 
 $(document).ready(function() {
-    $('#n", N/binary, "').removeClass('dhln');
-    $('#n", N/binary, "').addClass('dhl')
+    $('#nt", N/binary, "').removeClass('dhln');
+    $('#nt", N/binary, "').addClass('dhl')
+    $('#nb", N/binary, "').removeClass('dhln');
+    $('#nb", N/binary, "').addClass('dhl')
 
 })
 </script>
@@ -419,9 +432,9 @@ $(document).ready(function() {
 </script>
 
 <div>",
-Nav/binary,
+NavT/binary,
 (mk_tab(Headers, Result, Fields, ServerPath))/binary,
-Nav/binary,
+NavB/binary,
 "
 
 ">>
@@ -432,7 +445,7 @@ s_fields(<<"0">>) ->
 s_fields(<<"1">>) ->
 	<<"1",(setfields_single())/binary>>.
 
-mk_nav(CountB, RowsPerPageB, ServerPath, S) ->
+mk_nav(CountB, RowsPerPageB, ServerPath, S, TB) ->
 	Count=list_to_integer(binary_to_list(CountB)),
 	RowsPerPage=list_to_integer(binary_to_list(RowsPerPageB)),
 	Ni=Count div RowsPerPage,
@@ -446,15 +459,15 @@ mk_nav(CountB, RowsPerPageB, ServerPath, S) ->
 		true -> NavL = 10;
 		_ -> NavL = Nii
 	end,
-	build_nav(1, NavL, RowsPerPage, ServerPath, S).
+	build_nav(1, NavL, RowsPerPage, ServerPath, S, TB).
 
-build_nav(Start, End, RowsPerPage, ServerPath, S) ->
+build_nav(Start, End, RowsPerPage, ServerPath, S, TB) ->
 	StartB=list_to_binary(integer_to_list(Start)),
 
 	OffSet = list_to_binary(integer_to_list((Start-1)*RowsPerPage)),
 	case Start==End of
 		false -> 
-			<<"<div id='n", StartB/binary, "' class='dhln'><a href='javascript:void(0)' id='", StartB/binary, "'
+			<<"<div id='n", TB/binary, StartB/binary, "' class='dhln'><a href='javascript:void(0)' id='", StartB/binary, "'
 				onclick=\"$('#offset').val(", OffSet/binary,");
 			$.ajax({
 				 url: '/", ServerPath/binary, "',
@@ -478,12 +491,12 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 				 }
 		   });
 
-$('#n", StartB/binary, "').removeClass('dhln');
-$('#n", StartB/binary, "').addClass('dhl');\">
+$('#n", TB/binary, StartB/binary, "').removeClass('dhln');
+$('#n", TB/binary, StartB/binary, "').addClass('dhl');\">
 			", StartB/binary,"</a></div>", 
-			  (build_nav(Start+1,End, RowsPerPage, ServerPath, S))/binary>>;
+			  (build_nav(Start+1,End, RowsPerPage, ServerPath, S, TB))/binary>>;
 		_ ->
-			<<"<div id='n", StartB/binary, "' class='dhln'><a href='javascript:void(0)' id='", StartB/binary, "'
+			<<"<div id='n", TB/binary, StartB/binary, "' class='dhln'><a href='javascript:void(0)' id='", StartB/binary, "'
 				onclick=\"$('#offset').val(", OffSet/binary,");
 			$.ajax({
 				 url: '/", ServerPath/binary, "',
@@ -507,8 +520,8 @@ $('#n", StartB/binary, "').addClass('dhl');\">
 				 }
 		   });
 
-$('#n", StartB/binary, "').removeClass('dhln');
-$('#n", StartB/binary, "').addClass('dhl');\">
+$('#n", TB/binary, StartB/binary, "').removeClass('dhln');
+$('#n", TB/binary, StartB/binary, "').addClass('dhl');\">
 			", StartB/binary,"</a></div>">>
 	end.
 	
