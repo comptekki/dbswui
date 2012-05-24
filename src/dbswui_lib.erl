@@ -492,7 +492,16 @@ build_nav(Start, End, RowsPerPage, ServerPath, S, TB) ->
 		   });
 
 $('#n", TB/binary, StartB/binary, "').removeClass('dhln');
-$('#n", TB/binary, StartB/binary, "').addClass('dhl');\">
+$('#n", TB/binary, StartB/binary, "').addClass('dhl');
+",
+(case TB of
+	 <<"b">> ->
+		 <<"$('html, body').animate({scrollTop: $('html').height()}, 800);">>;
+	 _ ->
+		 <<>>
+end)/binary,
+"
+\">
 			", StartB/binary,"</a></div>", 
 			  (build_nav(Start+1,End, RowsPerPage, ServerPath, S, TB))/binary>>;
 		_ ->
@@ -521,7 +530,16 @@ $('#n", TB/binary, StartB/binary, "').addClass('dhl');\">
 		   });
 
 $('#n", TB/binary, StartB/binary, "').removeClass('dhln');
-$('#n", TB/binary, StartB/binary, "').addClass('dhl');\">
+$('#n", TB/binary, StartB/binary, "').addClass('dhl');
+",
+(case TB of
+	 <<"b">> ->
+		 <<"$('html, body').animate({scrollTop: $('html').height()}, 800);">>;
+	 _ ->
+		 <<>>
+end)/binary,
+"
+\">
 			", StartB/binary,"</a></div>">>
 	end.
 	
