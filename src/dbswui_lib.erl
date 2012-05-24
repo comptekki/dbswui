@@ -450,7 +450,7 @@ mk_nav(CountB, RowsPerPageB, ServerPath, S) ->
 
 build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 	StartB=list_to_binary(integer_to_list(Start)),
-	EndB=list_to_binary(integer_to_list(End)),
+
 	OffSet = list_to_binary(integer_to_list((Start-1)*RowsPerPage)),
 	case Start==End of
 		false -> 
@@ -477,7 +477,7 @@ build_nav(Start, End, RowsPerPage, ServerPath, S) ->
 				  alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
 				 }
 		   });
-mk_nav_norm(", EndB/binary, ");
+
 $('#n", StartB/binary, "').removeClass('dhln');
 $('#n", StartB/binary, "').addClass('dhl');\">
 			", StartB/binary,"</a></div>", 
@@ -506,7 +506,7 @@ $('#n", StartB/binary, "').addClass('dhl');\">
 				  alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
 				 }
 		   });
-mk_nav_norm(", EndB/binary, ");
+
 $('#n", StartB/binary, "').removeClass('dhln');
 $('#n", StartB/binary, "').addClass('dhl');\">
 			", StartB/binary,"</a></div>">>
@@ -713,13 +713,27 @@ mk_tab2([RowTuple|Rows],Hdrs,Fields, ServerPath) ->
 			  _  -> 
 				  <<>>
 		  end,
-	<<
-(case MatchVal of
- {match, _} ->
-<<"
-<script>
+	Mtj=mk_tab2_js(Id, Fields, SPath, ServerPath),
+%%%%%%%%%%
+	<<Mtj/binary,
+"
+
+<table id='t", Id/binary, "' class='record datat'>",
+	  (mk_tab3(1, Id, Row, Hdrs, Fields, SPath))/binary,
+	  "</table>
+",
+	  (mk_tab2(Rows, Hdrs, Fields, ServerPath))/binary>>;
+mk_tab2([], _Hdrs, _Fields, _ServerPath) ->
+	<<>>.
+
+%
+mk_tab2_js(Id, Fields, SPath, ServerPath) ->
+case SPath of
+	<<"edit">> ->
+		<<"
+<script type='text/javascript'>
 $(document).ready(function(){
-    $('#h", Id/binary, "').click(function() {
+    $('#h", Id/binary,"').click(function(){
         $('#t", Id/binary, "').modal({escClose:false, closeClass:'modal-cancel', focus:false, opacity:80, overlayCss: {backgroundColor:'#555'}, persist:true});
         $('#s", Id/binary, "').show();
         $('#c", Id/binary, "').show();
@@ -733,7 +747,7 @@ $(document).ready(function(){
         var ans = confirm ('Are you sure you want to delete this record')
         if (ans) {
             $.ajax({
-		       url: '/",ServerPath/binary,"',
+		       url: '/", ServerPath/binary, "',
 		       type: 'GET',
                data: 'tablename=", ?DB/binary, "&n=1&s=4&rpp=0&offset=0&id=", Id/binary, "',
                success: function(data) {
@@ -755,7 +769,6 @@ $(document).ready(function(){
         }
     });
 
-
     $('#s", Id/binary, "').click(function() {
 
         $('#s", Id/binary, "').hide();
@@ -763,25 +776,24 @@ $(document).ready(function(){
 ",
 (jsedit2(Id, Fields))/binary,
 "
+
 	$.ajax({
-		url: '/",ServerPath/binary,"',
+		url: '/", ServerPath/binary, "',
 		type: 'GET',
 		data: 'tablename=", ?DB/binary, "&n=1&s=2", (setfields2(Id, Fields))/binary, ",
 		success: function(data) {
             if (view)
-                ajfun1()
+                ajfun1();
             else 
                 ajfun0();
 
-            if (!(arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login) > -1 && arguments[2].responseText.indexOf('html') == 1))
-                alert(arguments[2].responseText)
-
+            if (!(arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
+                alert(arguments[2].responseText);
 		},
 		error:function(XMLHttpRequest, textStatus, errorThrown) {
 			alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
 		}
   	});
-
 
         $('#c", Id/binary, "').click();
     });
@@ -792,22 +804,14 @@ $(document).ready(function(){
 ",
 (jsedit3(Id,Fields))/binary,
 "
-    })
+    });
 
-})
+});
 </script>">>;
 	_ ->
 		 <<>>
-end)/binary,
-"
-<table id='t", Id/binary, "' class='record datat'>",
-	  (mk_tab3(1, Id, Row, Hdrs, Fields, SPath))/binary,
-	  "</table>
-",
-	  (mk_tab2(Rows, Hdrs, Fields, ServerPath))/binary>>;
-mk_tab2([], _Hdrs, _Fields, _ServerPath) ->
-	<<>>.
-
+end.
+	
 %
 
 setfields2(Id, Fields) ->
