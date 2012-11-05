@@ -1,0 +1,286 @@
+How to build a Xubuntu dev box for Erlang/PostgreSQL/Web Development
+
+Xubuntu
+
+Download Xubuntu iso:
+
+http://xubuntu.org/getxubuntu/
+
+Create boot CD/DVD/USB-stick
+Install Xubuntu
+As it reboots, unplug the network cable
+When it is booted and you are logged in, click the Applications Menu, Accessories, Terminal Emulator and enter:
+
+	 sudo ufw enable
+
+to turn the firewall on.  I like gufw also (gui for ufw).  If you want that, enter this in the terminal:
+
+   sudo apt-get gufw
+
+When the firewall is enabled, plug the network cable back in.
+
+To create an application launcher for gufw, right-click the desktop and select Create Launcher, type in fire and select Create Launcher Firewall.... This will create an icon on the desktop for gufw.  You can also create application launchers in the Application Menu by clicking the Application Menu, Settings Manager, Main Menu.
+
+
+Erlang
+
+Download Erlang from https://erlang.org
+While it is downloading run these commands to prepare for configuring Erlang:
+
+sudo apt-get install g++
+sudo apt-get install autoconf
+sudo apt-get install xsltproc
+sudo apt-get install libncurses5-dev
+sudo apt-get install unixodbc-dev
+sudo apt-get install fop
+sudo apt-get install openjdk-7-jdk
+sudo apt-get install libssl-dev
+sudo apt-get install libwxgtk2.8-dev
+sudo apt-get install libqt4-opengl-dev
+sudo apt-get install libgtk2.0-dev
+
+In a terminal run these commands after Erlang has finished downloading:
+
+mkdir src
+cd src
+tar -zxf ~/Downloads/otp_src_R15B02.tar.gz
+cd otp_src_R15B02
+./otp_build autoconf
+./configure
+make
+sudo make install
+
+Now run erl on the command line then run the wx widgets demo:
+		$ erl
+Erlang R15B02 (erts-5.9.2) [source] [smp:8:8] [async-threads:0] [hipe] 
+[kernel-poll:false]
+
+Eshell V5.9.2  (abort with ^G) 
+1> wx:demo().
+
+you should now get the wx widgets demo to start up.
+
+To get out of the erlang vm, press ctrl-c twice
+
+wx widgets is good to have as it allows you to do some debugging in the erlnng vm
+
+to debug in the erlang vm, type these commands:
+
+c(t, [debug_info]).
+   (where t is a module name, i.e. t.erl must exist)
+im().
+ii(t).
+iaa([init]).
+
+Then if you have a function in t.erl called test you can run:
+
+t:test().
+
+and start visually debugging the code.
+
+
+Chrome
+
+Install chrome web browser by going to:
+
+http://www.google.com/chrome
+
+and download.
+
+The file should downloaded in to ~/Downloads.  Open the folder by double-clicking the Home icon and then the Downloads folder.  Double-click the chrome .deb file and click Install in Ubuntu Software Center.  Or on the command line run:
+	
+	sudo dpkg -i google-chrome-stable_current_i386.deb
+
+
+Emacs
+
+In a terminal, enter:
+
+sudo apt-get install emacs23-nox
+
+If you want the gui emacs, enter:
+
+sudo ap-get install emacs23
+
+Erlang mode in Emacs
+
+http://www.erlang.org/doc/apps/tools/erlang_mode_chapter.html
+
+Erlang mode reference manual
+
+http://www.erlang.org/doc/man/erlang.el.html
+
+
+Git
+
+In a terminal, enter:
+
+   sudo apt-get install git
+
+
+Git in Emacs
+
+To get git integration in to emacs, type this:
+
+   sudo apt-get install get-el
+
+
+Emacs config file
+
+I use these commands in an ~/.emacs file:
+
+;erlang 15b02
+(setq load-path (cons  "/usr/local/lib/erlang/lib/tools-2.6.8/emacs"
+     load-path))
+     (setq erlang-root-dir "/usr/local/lib/erlang")
+     (setq exec-path (cons "/usr/local/lib/erlang/bin" exec-path))
+     (require 'erlang-start)
+
+; define function to shutdown emacs server instance
+(defun ked ()
+  "Save buffers, Quit, and Shutdown (kill) server"
+  (interactive)
+  (save-some-buffers)
+  (kill-emacs)
+  )
+
+(setq default-tab-width 4)
+
+(global-set-key (kbd "ESC <up>") 'scroll-down)
+(global-set-key (kbd "ESC <down>") 'scroll-up)
+
+(global-set-key (kbd "ESC <left>") 'previous-buffer)
+(global-set-key (kbd "ESC <right>") 'next-buffer)
+
+(global-set-key "\M-n" 'previous-buffer) ; [M]-[n]
+(global-set-key "\M-N" 'next-buffer) ; [M]-[N]
+
+(put 'upcase-region 'disabled nil)
+
+
+
+PostgreSQL
+
+Download latest from:
+
+		 http://www.postgresql.org/ftp/source/
+
+Open a terminal and cd to Downloads
+Enter these commands (depending on what version you have):
+
+	It’s good to have the readline library installed before configuring postgresql:
+
+		 sudo apt-get install libreadline6-dev
+
+	Next in terminal....
+
+		 cd Downloads
+		 tar -jxf postgresql-9.2.1.tar.bz2
+		 cd postgresql-9.2.1
+		 ./configure
+		 make
+		 sudo make install
+
+If you are curious about how long it takes to run “make” here or how long any other command takes to run, enter time before the command:
+
+time make
+
+Add /usr/local/psql/bin to your path in .bashrc
+	
+export PATH=/usr/local/pgsql/bin:$PATH
+
+and insert this:
+
+export LC_ALL=C
+ 
+
+Create initial postgres data area
+
+	   cd /usr/local
+	   mkdir data
+	   sudo chown user data
+	   initdb --local=C data        # force local to C
+
+Start postgres:
+
+Use either of these commands:
+
+postgres -D data
+
+i.e.:
+
+postgres -D /usr/local/data
+
+or
+
+pg_ctl -D data -l logfile start
+
+
+Create database:
+
+createdb dbooks
+
+Add data to dbooks database
+
+Enter the following on the command-line:
+
+psql dbooks
+create user pguser;
+\i dbooks.sql
+grant select on dbooks to pguser;
+
+for full access create a user then do this:
+
+grant all privileges on database dbooks to some-full-user;
+
+grant all privileges on table dbooks to some-full-user;
+
+alter role some-full-user login;
+
+
+Setup https://github.com/comptekki/dbswui
+
+In some directory run
+
+git clone https://github.com/comptekki/dbswui.git
+cd dbswui
+edit include/db.hrl and src/db.conf as needed
+run make inside dbswui
+
+Run a browser and go to:
+
+http://localhost:9080/db
+
+or
+
+https://localhost:9443/db
+
+Bash aliases and variables
+
+alias l='ls -al'
+alias le='ls -ale'
+alias ll='ls -al|less'
+alias rm='rm -i'
+alias mv='mv -i'
+alias cp='cp -i'
+alias vib='vi ~/.bashrc'
+alias bs='. ~/.bashrc'
+alias h='history'
+alias c='tput clear'
+alias ..='cd ..'
+alias crl='curl -C - -O'
+alias ce='crontab -e'
+alias p='python'
+alias s='sudo su -'
+
+alias e='emacsclient -nw'
+alias eb='e ~/.bashrc'
+alias ee='e ~/.emacs'
+alias emd='emacs --daemon'
+alias pse='ps -ax|grep "emacs --daemon"'
+alias ke="emacsclient -e '(kill-emacs)'"
+
+export GIT_AUTHOR_EMAIL='my@email.address'
+export GIT_AUTHOR_NAME='my_name'
+export EDITOR='emacs'
+export VISUAL='emacs'
