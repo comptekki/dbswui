@@ -228,29 +228,28 @@ createdb dbooks
 Add data to dbooks database
 
 Enter the following on the command-line:
+(sample data found in the sample-data folder on github repo)
 
 psql dbooks
 create user pguser;
 \i dbooks.sql
-grant select on dbooks to pguser;
-
-for full access create a user then do this:
-
-grant all privileges on database dbooks to some-full-user;
-
-grant all privileges on table dbooks to some-full-user;
-
-alter role some-full-user login;
+grant all privileges on database dbooks to pguser;
+grant all privileges on table dbooks to pguser;
+alter role pguser login;
 
 
 Setup https://github.com/comptekki/dbswui
 
-In some directory run
+In some directory run:
 
 git clone https://github.com/comptekki/dbswui.git
 cd dbswui
-edit include/db.hrl and src/db.conf as needed
+edit include/db.hrl and src/db.conf as needed (keep as is to run with pguser)
 run make inside dbswui
+
+run dbswui by executing start stript on command line:
+
+./start.sh
 
 Run a browser and go to:
 
