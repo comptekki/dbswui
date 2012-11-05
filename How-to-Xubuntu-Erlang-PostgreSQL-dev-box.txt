@@ -19,7 +19,9 @@ to turn the firewall on.  I like gufw also (gui for ufw).  If you want that, ent
 
 When the firewall is enabled, plug the network cable back in.
 
-To create an application launcher for gufw, right-click the desktop and select Create Launcher, type in fire and select Create Launcher Firewall.... This will create an icon on the desktop for gufw.  You can also create application launchers in the Application Menu by clicking the Application Menu, Settings Manager, Main Menu.
+To create an application launcher for gufw, right-click the desktop and select Create Launcher, type in fire
+and select Create Launcher Firewall.... This will create an icon on the desktop for gufw.  You can also create
+application launchers in the Application Menu by clicking the Application Menu, Settings Manager, Main Menu.
 
 
 Erlang
@@ -87,7 +89,9 @@ http://www.google.com/chrome
 
 and download.
 
-The file should downloaded in to ~/Downloads.  Open the folder by double-clicking the Home icon and then the Downloads folder.  Double-click the chrome .deb file and click Install in Ubuntu Software Center.  Or on the command line run:
+The file should downloaded in to ~/Downloads.  Open the folder by double-clicking the Home icon and then the
+Downloads folder.  Double-click the chrome .deb file and click Install in Ubuntu Software Center.  Or on the
+command line run:
 	
 	sudo dpkg -i google-chrome-stable_current_i386.deb
 
@@ -181,7 +185,8 @@ Enter these commands (depending on what version you have):
 		 make
 		 sudo make install
 
-If you are curious about how long it takes to run “make” here or how long any other command takes to run, enter time before the command:
+If you are curious about how long it takes to run “make” here or how long any other command takes to run, enter
+time before the command:
 
 time make
 
