@@ -104,26 +104,27 @@ now_bin() ->
 %
 
 get_top() ->
-<<"<html>
+<<"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">
+<html lang=\"en\">
 <head>
 <title>DBSWUI</title>
 
-<meta Http-Equiv='Cache-Control' Content='no-cache'>
-<meta Http-Equiv='Pragma' Content='no-cache'>
-<meta Http-Equiv='Expires' Content='0'>
+<meta Http-Equiv=\"Cache-Control\" Content=\"no-cache\" />
+<meta Http-Equiv=\"Pragma\" Content=\"no-cache\" />
+<meta Http-Equiv=\"Expires\" Content=\"0\" />
 
-<meta http-equiv='Content-Type' content='text/html;charset=utf-8'/> 
-<link rel='icon' href='/static/favicon.ico' type='image/x-icon' />
-<link href='/static/db.css?", (now_bin())/binary, "' media='screen' rel='stylesheet' type='text/css' />
+<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" /> 
+<link rel=\"icon\" href=\"/static/favicon.ico\" type=\"image/x-icon\" />
+<link rel=\"stylesheet\" href=\"/static/db.css?", (now_bin())/binary, "\" type=\"text/css\" media=\"screen\" />
 ">>.
 
 %
 
 rttp_main(ServerPath, Hdr) ->
 	  <<"
-<script type='text/javascript' src='",?JQUERY,"'></script>
-<script type='text/javascript' src='/static/jquery.simplemodal.1.4.2.min.js'></script>
-<script type='text/javascript'>
+<script type=\"text/javascript\" src=\"",?JQUERY,"\"></script>
+<script type=\"text/javascript\" src=\"/static/jquery.simplemodal.1.4.2.min.js\"></script>
+<script type=\"text/javascript\">
 
 var view = true;
 var activeElement = null;
