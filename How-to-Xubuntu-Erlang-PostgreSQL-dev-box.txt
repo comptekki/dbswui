@@ -126,7 +126,7 @@ Git in Emacs
 
 To get git integration in to emacs, type this:
 
-   sudo apt-get install get-el
+   sudo apt-get install git-el
 
 
 Emacs config file
