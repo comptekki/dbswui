@@ -27,6 +27,9 @@ application launchers in the Application Menu by clicking the Application Menu, 
 Erlang
 
 Download Erlang from https://erlang.org
+
+wget http://www.erlang.org/download/otp_src_R15B02.tar.gz
+
 While it is downloading run these commands to prepare for configuring Erlang:
 
 sudo apt-get install g++
