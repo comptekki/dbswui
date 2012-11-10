@@ -203,14 +203,14 @@ ajfun0 = function() {
 	activeElement=document.activeElement;
 	$('#offset').val(0);
 	$.ajax({
-		url: '/",ServerPath/binary,"',
+		url: '",ServerPath/binary,"',
 		type: 'GET',
 		data: 'tablename=", ?DB/binary,"&n=1&s=0",(setfields())/binary,",
 		success: function(data) {
 
             if (arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
                 alert('Login Expired - Please Re-Login...');
-                location.href='/",ServerPath/binary,"'
+                location.href='",ServerPath/binary,"'
             }
             else {
                 $('#data').html(arguments[2].responseText);
@@ -257,14 +257,14 @@ js4(ServerPath) ->
     ajfun1 = function() {
 		$('#offset').val(0);
 		$.ajax({
-			url: '/",ServerPath/binary, "',
+			url: '",ServerPath/binary, "',
 			type: 'GET',
 			data: 'tablename=", ?DB/binary, "&n=1&s=1", (setfields_single())/binary, ",
 			success: function(data) {
 
                 if ((arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1) && (arguments[2].responseText.indexOf('html') == 1)) {
                     alert('Login Expired - Please Re-Login...');
-                    location.href='/",ServerPath/binary,"'
+                    location.href='",ServerPath/binary,"'
                 }
                 else {
 
@@ -408,14 +408,14 @@ $(document).ready(function() {
 	});
 	$('#range_input_view').click().mouseup(function() {
 		$.ajax({
-			url: '/",ServerPath/binary,"',
+			url: '",ServerPath/binary,"',
 			type: 'GET',
 			data: 'tablename=", ?DB/binary, "&n=1&s=", (s_fields(S))/binary, ",
 			success: function(data) {
 
                    if (arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
                        alert('Login Expired - Please Re-Login...');
-                       location.href='/",ServerPath/binary,"'
+                       location.href='",ServerPath/binary,"'
                    }
                    else {
                        $('#data').html(arguments[2].responseText);
@@ -471,14 +471,14 @@ build_nav(Start, End, RowsPerPage, ServerPath, S, TB) ->
 			<<"<div id='n", TB/binary, StartB/binary, "' class='dhln'><a href='javascript:void(0)' id='", StartB/binary, "'
 				onclick=\"$('#offset').val(", OffSet/binary,");
 			$.ajax({
-				 url: '/", ServerPath/binary, "',
+				 url: '", ServerPath/binary, "',
 				 type: 'GET',
 				 data: 'tablename=", ?DB/binary, "&n=", StartB/binary, "&s=", (s_fields(S))/binary, ",
 				 success: function(data) {
 
                    if (arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
                        alert('Login Expired - Please Re-Login...');
-                       location.href='/",ServerPath/binary,"'
+                       location.href='",ServerPath/binary,"'
                    }
                    else {
                        $('#data').html(arguments[2].responseText);
@@ -509,14 +509,14 @@ end)/binary,
 			<<"<div id='n", TB/binary, StartB/binary, "' class='dhln'><a href='javascript:void(0)' id='", StartB/binary, "'
 				onclick=\"$('#offset').val(", OffSet/binary,");
 			$.ajax({
-				 url: '/", ServerPath/binary, "',
+				 url: '", ServerPath/binary, "',
 				 type: 'GET',
 				 data: 'tablename=", ?DB/binary, "&n=", StartB/binary, "&s=", (s_fields(S))/binary, ",
 				 success: function(data) {
 
                    if (arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
                        alert('Login Expired - Please Re-Login...');
-                       location.href='/",ServerPath/binary,"'
+                       location.href='",ServerPath/binary,"'
                    }
                    else {
                        $('#data').html(arguments[2].responseText);
@@ -576,7 +576,7 @@ $(document).ready(function(){
     $('#s_add_rec').click(function() {
 
 	$.ajax({
-		url: '/",ServerPath/binary,"',
+		url: '",ServerPath/binary,"',
 		type: 'GET',
 		data: 'tablename=", ?DB/binary, "&n=1&s=3",
  (setfields2a(Fields))/binary,
@@ -779,7 +779,7 @@ $(document).ready(function(){
         var ans = confirm ('Are you sure you want to delete this record')
         if (ans) {
             $.ajax({
-		       url: '/", ServerPath/binary, "',
+		       url: '", ServerPath/binary, "',
 		       type: 'GET',
                data: 'tablename=", ?DB/binary, "&n=1&s=4&rpp=0&offset=0&id=", Id/binary, "',
                success: function(data) {
@@ -810,7 +810,7 @@ $(document).ready(function(){
 "
 
 	$.ajax({
-		url: '/", ServerPath/binary, "',
+		url: '", ServerPath/binary, "',
 		type: 'GET',
 		data: 'tablename=", ?DB/binary, "&n=1&s=2", (setfields2(Id, Fields))/binary, ",
 		success: function(data) {
