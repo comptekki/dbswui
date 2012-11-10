@@ -11,6 +11,6 @@
 		ssl,
 		cowboy
 	]},
-	{mod, {dbswui, []}},
+	{mod, {dbswui_app, []}},
 	{env, []}
 ]}.
