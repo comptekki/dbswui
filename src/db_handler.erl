@@ -1,34 +1,34 @@
 -module(db_handler).
--behaviour(cowboy_http_handler).
+
 -export([init/3, handle/2, terminate/2]).
 
 -import(dbswui_lib, [return_top_page/2, select_fields/1, select_pattern/1, select_pattern/3, table/7]).
 
--include("deps/cowboy/include/http.hrl").
+%-include("deps/cowboy/include/http.hrl").
 -include("db.hrl").
 
 %
 
-init({_Any, http}, Req, []) ->
+init(_Transport, Req, []) ->
 	{ok, Req, undefined}.
 
 %
 
 handle(Req0, State) ->
-	{[ServerPath], Req1} = cowboy_http_req:path(Req0),
-	{Client_IP, Req} = cowboy_http_req:peer_addr(Req1),
+	{ServerPath, Req1} = cowboy_req:path(Req0),
+	{Client_IP, Req} = cowboy_req:peer_addr(Req1),
 	io:format("~nIP: ~p - Date/Time: ~p~n",[Client_IP, calendar:local_time()]),
-	{S, _Req} = cowboy_http_req:qs_val(<<"s">>,Req),
-	{Table, _Req} = cowboy_http_req:qs_val(<<"tablename">>,Req),
+	{S, _Req} = cowboy_req:qs_val(<<"s">>,Req),
+	{Table, _Req} = cowboy_req:qs_val(<<"tablename">>,Req),
 	{ok, Req2} =
-		cowboy_http_req:
+		cowboy_req:
 		reply(200, [],
 			  case Table of
 				  ?DB ->
-					  {Rpp, _Req} = cowboy_http_req:qs_val(<<"rpp">>,Req),
-					  {Offset, _Req} = cowboy_http_req:qs_val(<<"offset">>,Req),
-					  {N, _Req} = cowboy_http_req:qs_val(<<"n">>, Req),
-					  {FieldsAll, _Req} = cowboy_http_req:qs_vals(Req),
+					  {Rpp, _Req} = cowboy_req:qs_val(<<"rpp">>,Req),
+					  {Offset, _Req} = cowboy_req:qs_val(<<"offset">>,Req),
+					  {N, _Req} = cowboy_req:qs_val(<<"n">>, Req),
+					  {FieldsAll, _Req} = cowboy_req:qs_vals(Req),
 					  [_,_,_,_,_|RawFields] = FieldsAll,
 					  Fields=select_fields(RawFields),
 					  Sp =
