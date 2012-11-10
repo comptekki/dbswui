@@ -1,5 +1,4 @@
 -module(db_edit_handler).
--behaviour(cowboy_http_handler).
 -export([init/3, handle/2, terminate/2]).
 
 -import(dbswui_lib, [return_top_page/2, select_fields/1, select_pattern/1, select_pattern/3, table/7, escape0/1]).
@@ -8,11 +7,11 @@
 
 %
 
-init({_Any, http}, Req, []) ->
+init(_Transport, Req, []) ->
 	{ok, Req, undefined}.
 
 fire_wall(Req) ->	
-	{PeerAddress, _Req}=cowboy_http_req:peer_addr(Req),
+	{PeerAddress, _Req}=cowboy_req:peer_addr(Req),
 	{ok, [_,{FireWallOnOff,IPAddresses},_]}=file:consult(?CONF),
 	case FireWallOnOff of
 		on ->
@@ -28,7 +27,7 @@ fire_wall(Req) ->
 %
 
 fwDenyMessage(Req, State) ->
-	{ok, Req2} = cowboy_http_req:reply(200, [{'Content-Type', <<"text/html">>}],
+	{ok, Req2} = cowboy_req:reply(200, [{"Content-Type", <<"text/html">>}],
 <<"<html>
 <head> 
 <title>", ?DBTITLE/binary, "</title>
@@ -55,13 +54,13 @@ login_is() ->
 
 checkCreds(UnamePasswds, Req, _State) ->
 	[{Uname,_}] = UnamePasswds,
-	{C, Req1} = cowboy_http_req:cookie(Uname, Req),
+	{C, Req1} = cowboy_req:cookie(Uname, Req),
     case (C == undefined) or (C == <<>>) of
 		true ->
 			checkPost(UnamePasswds, Req1);
 		false  ->
 			CookieVal = get_cookie_val(), 
-			{ok, Req2} = cowboy_http_req:set_resp_cookie(Uname, CookieVal, [{max_age, ?MAXAGE}, {path, "/"}, {secure, true}, {http_only, true}], Req1),
+			Req2 = cowboy_req:set_resp_cookie(Uname, CookieVal, [{max_age, ?MAXAGE}, {path, "/"}, {secure, true}, {http_only, true}], Req1),
 			{pass, Req2}
 	end.
 
@@ -73,7 +72,7 @@ checkCreds([{Uname,Passwd}|UnamePasswds], Uarg, Parg, Req) ->
 			case Passwd of
 				Parg ->
 					CookieVal = get_cookie_val(), 
-					{ok, Req0} = cowboy_http_req:set_resp_cookie(Uname, CookieVal, [{max_age, ?MAXAGE}, {path, "/"}, {secure, true}, {http_only, true}], Req),
+					Req0 = cowboy_req:set_resp_cookie(Uname, CookieVal, [{max_age, ?MAXAGE}, {path, "/"}, {secure, true}, {http_only, true}], Req),
 					{pass, Req0};
 				_ ->
 					checkCreds(UnamePasswds,Uarg,Parg,Req)
@@ -87,9 +86,9 @@ checkCreds([], _Uarg, _Parg, Req) ->
 %
 
 checkPost(UnamePasswds,Req) ->
-	case cowboy_http_req:method(Req) of
-		{'POST', Req0} ->
-			{FormData, Req1} = cowboy_http_req:body_qs(Req0),
+	case cowboy_req:method(Req) of
+		{<<"POST">>, Req0} ->
+			{ok, FormData, Req1} = cowboy_req:body_qs(Req0),
 			case FormData of
 				[{_UnameVar,UnameVal},{_PasswdVar,PasswdVal},_Login] ->
 					checkCreds(UnamePasswds,UnameVal,PasswdVal,Req1);
@@ -115,7 +114,7 @@ app_login(Req, State) ->
 		allow ->
 			case is_list(login_is()) of
 				true ->
-					{ok, Req2} = cowboy_http_req:reply(200, [{'Content-Type', <<"text/html">>}],
+					{ok, Req2} = cowboy_req:reply(200, [{"Content-Type", <<"text/html">>}],
 <<"<html>
 <head> 
 <title>", ?DBTITLE/binary, "</title>
@@ -127,7 +126,7 @@ app_login(Req, State) ->
 
 <link rel='icon' href='/static/favicon.ico' type='image/x-icon' />
 <link href='/static/db.css' media='screen' rel='stylesheet' type='text/css' />
-<script type='text/javascript' src='",?JQUERY,"'></script>
+<script type='text/javascript' src='", ?JQUERY, "'></script>
 <script>
 $(document).ready(function(){
 
@@ -154,7 +153,7 @@ $('#uname').focus();
 </body>
 </html>">>, Req);
                 false ->
-					{ok, Req2} = cowboy_http_req:reply(200, [{'Content-Type', <<"text/html">>}],
+					{ok, Req2} = cowboy_req:reply(200, [{"Content-Type", <<"text/html">>}],
 <<"<html>
 <head> 
 <title>", ?DBTITLE/binary, " Login</title>
@@ -174,8 +173,8 @@ hi
 handle(Req, State) ->
 	case fire_wall(Req) of
 		allow ->
-			case cowboy_http_req:transport(Req) of
-				{ok, cowboy_ssl_transport, _} ->
+			case cowboy_req:transport(Req) of
+				{ok, ranch_ssl, _} ->
 					Creds=login_is(),
 					case is_list(Creds) of
 						true ->
@@ -195,8 +194,8 @@ handle(Req, State) ->
 							end
 					end;
 				_ ->
-					{ok,Req1} = cowboy_http_req:set_resp_header('Location', <<"/db">>, Req),
-					{ok, Req2} = cowboy_http_req:reply(302, [], <<>>, Req1),
+					Req1 = cowboy_req:set_resp_header(<<"'Location'">>, [<<"/db">>], Req),
+					{ok, Req2} = cowboy_req:reply(302, [], <<>>, Req1),
 					{ok, Req2, State}
 			end;
 		deny ->
@@ -206,19 +205,18 @@ handle(Req, State) ->
 %
 
 app_front_end(Req0, State) ->
-	{[ServerPath1, ServerPath2], Req1} = cowboy_http_req:path(Req0),
-	ServerPath= <<ServerPath1/binary, "/",ServerPath2/binary>>,
-	{Client_IP, Req2} = cowboy_http_req:peer_addr(Req1),
+	{ServerPath, Req1} = cowboy_req:path(Req0),
+	{Client_IP, Req2} = cowboy_req:peer_addr(Req1),
 	io:format("~nIP: ~p - Date/Time: ~p~n",[Client_IP, calendar:local_time()]),
-	{S, Req3} = cowboy_http_req:qs_val(<<"s">>, Req2),
-	{Table, Req4} = cowboy_http_req:qs_val(<<"tablename">>, Req3),
+	{S, Req3} = cowboy_req:qs_val(<<"s">>, Req2),
+	{Table, Req4} = cowboy_req:qs_val(<<"tablename">>, Req3),
 
 	Val = case Table of
 			  ?DB ->
-				  {Rpp, Req5} = cowboy_http_req:qs_val(<<"rpp">>, Req4),
-				  {Offset, Req6} = cowboy_http_req:qs_val(<<"offset">>, Req5),
-				  {N, Req66} = cowboy_http_req:qs_val(<<"n">>, Req6),
-				  {FieldsAll, Req7} = cowboy_http_req:qs_vals(Req66),
+				  {Rpp, Req5} = cowboy_req:qs_val(<<"rpp">>, Req4),
+				  {Offset, Req6} = cowboy_req:qs_val(<<"offset">>, Req5),
+				  {N, Req66} = cowboy_req:qs_val(<<"n">>, Req6),
+				  {FieldsAll, Req7} = cowboy_req:qs_vals(Req66),
 				  [_,_,_,_,_|RawFields] = FieldsAll,
 				  Fields=select_fields(RawFields),
 				  case S of
@@ -264,7 +262,7 @@ app_front_end(Req0, State) ->
 						  <<(return_top_page(ServerPath, <<"0">>))/binary>>
 				  end
 		  end,
-	{ok, Req8} = cowboy_http_req:reply(200, [], Val, Req7),
+	{ok, Req8} = cowboy_req:reply(200, [], Val, Req7),
 	{ok, Req8, State}.
 
 %
