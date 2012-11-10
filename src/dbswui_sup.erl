@@ -15,4 +15,5 @@ start_link() ->
 %% supervisor.
 
 init([]) ->
-	{ok, {{one_for_one, 10, 10}, []}}.
+	Procs = [],
+	{ok, {{one_for_one, 10, 10}, Procs}}.
