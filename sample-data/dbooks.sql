@@ -10,13 +10,13 @@ SET client_min_messages = warning;
 SET escape_string_warning = off;
 
 --
--- Name: plpgsql; Type: PROCEDURAL LANGUAGE; Schema: -; Owner: pguser
+-- Name: plpgsql; Type: PROCEDURAL LANGUAGE; Schema: -; Owner: postgres
 --
 
 CREATE OR REPLACE PROCEDURAL LANGUAGE plpgsql;
 
 
-ALTER PROCEDURAL LANGUAGE plpgsql OWNER TO pguser;
+ALTER PROCEDURAL LANGUAGE plpgsql OWNER TO postgres;
 
 SET search_path = public, pg_catalog;
 
@@ -25,7 +25,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: dbooks; Type: TABLE; Schema: public; Owner: pguser; Tablespace: 
+-- Name: dbooks; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE dbooks (
@@ -41,10 +41,10 @@ CREATE TABLE dbooks (
 );
 
 
-ALTER TABLE public.dbooks OWNER TO pguser;
+ALTER TABLE public.dbooks OWNER TO postgres;
 
 --
--- Name: dbooks_id_seq; Type: SEQUENCE; Schema: public; Owner: pguser
+-- Name: dbooks_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE dbooks_id_seq
@@ -55,31 +55,31 @@ CREATE SEQUENCE dbooks_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.dbooks_id_seq OWNER TO pguser;
+ALTER TABLE public.dbooks_id_seq OWNER TO postgres;
 
 --
--- Name: dbooks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: pguser
+-- Name: dbooks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE dbooks_id_seq OWNED BY dbooks.id;
 
 
 --
--- Name: dbooks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: pguser
+-- Name: dbooks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('dbooks_id_seq', 6429, true);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: pguser
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE dbooks ALTER COLUMN id SET DEFAULT nextval('dbooks_id_seq'::regclass);
 
 
 --
--- Data for Name: dbooks; Type: TABLE DATA; Schema: public; Owner: pguser
+-- Data for Name: dbooks; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY dbooks (id, title, author_editor, date_of_publication, publisher, key_words, notes, valuation, purchase_price) FROM stdin;
@@ -6517,7 +6517,7 @@ COPY dbooks (id, title, author_editor, date_of_publication, publisher, key_words
 
 
 --
--- Name: dbooks_pkey; Type: CONSTRAINT; Schema: public; Owner: pguser; Tablespace: 
+-- Name: dbooks_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY dbooks
@@ -6525,19 +6525,19 @@ ALTER TABLE ONLY dbooks
 
 
 --
--- Name: title_idx; Type: INDEX; Schema: public; Owner: pguser; Tablespace: 
+-- Name: title_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE INDEX title_idx ON dbooks USING btree (title);
 
 
 --
--- Name: public; Type: ACL; Schema: -; Owner: pguser
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
 --
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM pguser;
-GRANT ALL ON SCHEMA public TO pguser;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
