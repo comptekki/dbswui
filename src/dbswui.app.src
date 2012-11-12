@@ -2,7 +2,7 @@
 	{description, "database search web ui."},
 	{vsn, "0.1.0"},
 	{modules, []},
-	{registered, [dbswui_sup]},
+	{registered, []},
 	{applications, [
 		kernel,
 		stdlib,
