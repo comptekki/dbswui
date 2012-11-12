@@ -4,7 +4,6 @@
 
 -import(dbswui_lib, [return_top_page/2, select_fields/1, select_pattern/1, select_pattern/3, table/7]).
 
-%-include("deps/cowboy/include/http.hrl").
 -include("db.hrl").
 
 %
