@@ -194,7 +194,7 @@ handle(Req, State) ->
 							end
 					end;
 				_ ->
-					Req1 = cowboy_req:set_resp_header(<<"'Location'">>, [<<"/db">>], Req),
+					Req1 = cowboy_req:set_resp_header(<<"Location">>, [<<"/db">>], Req),
 					{ok, Req2} = cowboy_req:reply(302, [], <<>>, Req1),
 					{ok, Req2, State}
 			end;
