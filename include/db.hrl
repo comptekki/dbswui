@@ -1,8 +1,8 @@
 -define(DBHOST, "localhost").
 -define(HOST, "localhost").
 -define(DB, <<"dbooks">>).
--define(USERNAME, "pguser").
--define(PASSWORD, "").
+-define(USERNAME, "postgres").
+-define(PASSWORD, "pguser").
 -define(PORT, 5432).
 -define(JQUERY, "/static/jquery-1.7.2.min.js").
 -define(DBTITLE, <<"Duplicate Books">>).
