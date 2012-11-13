@@ -6,4 +6,12 @@ todo:
 1: remove white space at beginning and end of updated/inserted text
 2: add select all/delete all option
 
-See How-to-Xubuntu-Erlang-PostgreSQL-dev-box.txt to test dbswui.
+How To
+
+To learn how to set dbswui up, go to
+
+    https://github.com/comptekki/dbswui/wiki
+
+or to download a copy of the wiki information, do a git clone:
+
+    git clone https://github.com/comptekki/dbswui.wiki.git
