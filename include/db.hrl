@@ -4,8 +4,9 @@
 -define(USERNAME, "postgres").
 -define(PASSWORD, "pguser").
 -define(PORT, 5432).
+-define(CSS, "/static/db.css").
 -define(JQUERY, "/static/jquery-1.7.2.min.js").
--define(DBTITLE, <<"Duplicate Books">>).
+-define(TITLE, <<"Duplicate Books">>).
 -define(MAX_LENB, <<"300">>).
 -define(MAX_LEN, 300).
 -define(TABLE, 	[<<"title">>, <<"author_editor">>, <<"date_of_publication">>, <<"publisher">>, <<"key_words">>, <<"notes">>, <<"valuation">>, <<"purchase_price">>]).
