@@ -5,6 +5,10 @@
 
 -include("db.hrl").
 
+%im().
+%ii(db_edit_handler).
+%iaa([init]).
+
 %
 
 init(_Transport, Req, []) ->
@@ -30,7 +34,7 @@ fwDenyMessage(Req, State) ->
 	{ok, Req2} = cowboy_req:reply(200, [{"Content-Type", <<"text/html">>}],
 <<"<html>
 <head> 
-<title>", ?DBTITLE/binary, "</title>
+<title>", ?TITLE/binary, "</title>
 <style>
 body {background-color:black; color:yellow}
 </style>
@@ -117,7 +121,7 @@ app_login(Req, State) ->
 					{ok, Req2} = cowboy_req:reply(200, [{"Content-Type", <<"text/html">>}],
 <<"<html>
 <head> 
-<title>", ?DBTITLE/binary, "</title>
+<title>", ?TITLE/binary, "</title>
 
 <meta Http-Equiv='Cache-Control' Content='no-cache'>
 <meta Http-Equiv='Pragma' Content='no-cache'>
@@ -125,7 +129,7 @@ app_login(Req, State) ->
 <META HTTP-EQUIV='EXPIRES' CONTENT='Mon, 30 Apr 2012 00:00:01 GMT'>
 
 <link rel='icon' href='/static/favicon.ico' type='image/x-icon' />
-<link href='/static/db.css' media='screen' rel='stylesheet' type='text/css' />
+<link href='/static/", ?CSS, "' media='screen' rel='stylesheet' type='text/css' />
 <script type='text/javascript' src='", ?JQUERY, "'></script>
 <script>
 $(document).ready(function(){
@@ -138,7 +142,7 @@ $('#uname').focus();
 <body>
 <form action='/db/edit' method='post'>
 <div>
-  <h3>", ?DBTITLE/binary, " Login</h3>
+  <h3>", ?TITLE/binary, " Login</h3>
 </div>
 <div class='unamed'>
   <div class='unamed-t'>Username: </div><div><input id='uname' type='text' name='uname'></div>
@@ -156,7 +160,7 @@ $('#uname').focus();
 					{ok, Req2} = cowboy_req:reply(200, [{"Content-Type", <<"text/html">>}],
 <<"<html>
 <head> 
-<title>", ?DBTITLE/binary, " Login</title>
+<title>", ?TITLE/binary, " Login</title>
 </head>
 <body>
 hi
@@ -173,8 +177,8 @@ hi
 handle(Req, State) ->
 	case fire_wall(Req) of
 		allow ->
-			case cowboy_req:transport(Req) of
-				{ok, ranch_ssl, _} ->
+			case cowboy_req:get([socket, transport], Req) of
+				[_Socket, ranch_ssl] ->
 					Creds=login_is(),
 					case is_list(Creds) of
 						true ->
