@@ -5,9 +5,9 @@ init(_Transport, Req, []) ->
        {ok, Req, undefined}.
 
 handle(Req, State) ->
-	Req1 = cowboy_req:set_resp_header(<<"Location">>, <<"/db">>, Req),
-	{ok, Req2} = cowboy_req:reply(302, [], <<>>, Req1),
-	{ok, Req2, State}.
+	Req2 = cowboy_req:set_resp_header(<<"Location">>, <<"/db">>, Req),
+	{ok, Req3} = cowboy_req:reply(302, [], <<>>, Req2),
+	{ok, Req3, State}.
 
 terminate(_Req, _State) ->
        ok.
