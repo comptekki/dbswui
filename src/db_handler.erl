@@ -6,6 +6,10 @@
 
 -include("db.hrl").
 
+%im().
+%ii(db_handler).
+%iaa([init]).
+
 %
 
 init(_Transport, Req, []) ->
