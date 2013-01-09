@@ -26,7 +26,7 @@ start(_Type, Args) ->
 		  http,
 		  100,
 		  [{port, HTTP_Port}],
-		  [{dispatch, Dispatch}]
+		  [{env, [{dispatch, Dispatch}]}]
 		 ),
 	{ok, _} = 
 		cowboy:start_https(
@@ -36,7 +36,7 @@ start(_Type, Args) ->
 		   {certfile, "priv/ssl/cert.pem"},
 		   {keyfile, "priv/ssl/key.pem"},
 		   {password, ""}],
-		  [{dispatch, Dispatch}]
+		  [{env, [{dispatch, Dispatch}]}]
 		 ),
 	dbswui_sup:start_link().
 
