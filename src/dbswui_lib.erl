@@ -115,7 +115,7 @@ get_top() ->
 
 <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" /> 
 <link rel=\"icon\" href=\"/static/favicon.ico\" type=\"image/x-icon\" />
-<link rel=\"stylesheet\" href=\"/static/db.css?", (now_bin())/binary, "\" type=\"text/css\" media=\"screen\" />
+<link rel=\"stylesheet\" href=\"", ?CSS, "?", (now_bin())/binary, "\" type=\"text/css\" media=\"screen\" />
 ">>.
 
 %
@@ -208,7 +208,7 @@ ajfun0 = function() {
 		data: 'tablename=", ?DB/binary,"&n=1&s=0",(setfields())/binary,",
 		success: function(data) {
 
-            if (arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
+            if (arguments[2].responseText.indexOf('", ?TITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
                 alert('Login Expired - Please Re-Login...');
                 location.href='",ServerPath/binary,"'
             }
@@ -262,7 +262,7 @@ js4(ServerPath) ->
 			data: 'tablename=", ?DB/binary, "&n=1&s=1", (setfields_single())/binary, ",
 			success: function(data) {
 
-                if ((arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1) && (arguments[2].responseText.indexOf('html') == 1)) {
+                if ((arguments[2].responseText.indexOf('", ?TITLE/binary, " Login') > -1) && (arguments[2].responseText.indexOf('html') == 1)) {
                     alert('Login Expired - Please Re-Login...');
                     location.href='",ServerPath/binary,"'
                 }
@@ -413,7 +413,7 @@ $(document).ready(function() {
 			data: 'tablename=", ?DB/binary, "&n=1&s=", (s_fields(S))/binary, ",
 			success: function(data) {
 
-                   if (arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
+                   if (arguments[2].responseText.indexOf('", ?TITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
                        alert('Login Expired - Please Re-Login...');
                        location.href='",ServerPath/binary,"'
                    }
@@ -476,7 +476,7 @@ build_nav(Start, End, RowsPerPage, ServerPath, S, TB) ->
 				 data: 'tablename=", ?DB/binary, "&n=", StartB/binary, "&s=", (s_fields(S))/binary, ",
 				 success: function(data) {
 
-                   if (arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
+                   if (arguments[2].responseText.indexOf('", ?TITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
                        alert('Login Expired - Please Re-Login...');
                        location.href='",ServerPath/binary,"'
                    }
@@ -514,7 +514,7 @@ end)/binary,
 				 data: 'tablename=", ?DB/binary, "&n=", StartB/binary, "&s=", (s_fields(S))/binary, ",
 				 success: function(data) {
 
-                   if (arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
+                   if (arguments[2].responseText.indexOf('", ?TITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
                        alert('Login Expired - Please Re-Login...');
                        location.href='",ServerPath/binary,"'
                    }
@@ -587,7 +587,7 @@ $(document).ready(function(){
             else 
                 ajfun0();
 
-            if (!(arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
+            if (!(arguments[2].responseText.indexOf('", ?TITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
                 alert(arguments[2].responseText)
 
 		},
@@ -671,7 +671,7 @@ mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
 <table>
 <tr>
 <td colspan='9'> 
-<p style='text-align: center; text-transform: uppercase;color: #949610; font-size:1.5em'>", ?DBTITLE/binary, "</p>
+<p style='text-align: center; text-transform: uppercase;color: #949610; font-size:1.5em'>", ?TITLE/binary, "</p>
 </td>
 </tr>
 </table>
@@ -788,7 +788,7 @@ $(document).ready(function(){
                    else 
                        ajfun0();
 
-                   if (!(arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
+                   if (!(arguments[2].responseText.indexOf('", ?TITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
                        alert(arguments[2].responseText)
 
 		       },
@@ -819,7 +819,7 @@ $(document).ready(function(){
             else 
                 ajfun0();
 
-            if (!(arguments[2].responseText.indexOf('", ?DBTITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
+            if (!(arguments[2].responseText.indexOf('", ?TITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
                 alert(arguments[2].responseText);
 		},
 		error:function(XMLHttpRequest, textStatus, errorThrown) {
