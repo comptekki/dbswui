@@ -129,7 +129,7 @@ app_login(Req, State) ->
 <META HTTP-EQUIV='EXPIRES' CONTENT='Mon, 30 Apr 2012 00:00:01 GMT'>
 
 <link rel='icon' href='/static/favicon.ico' type='image/x-icon' />
-<link href='/static/", ?CSS, "' media='screen' rel='stylesheet' type='text/css' />
+<link rel=\"stylesheet\" href=\"", ?CSS, "?", (now_bin())/binary, "\" type=\"text/css\" media=\"screen\" />
 <script type='text/javascript' src='", ?JQUERY, "'></script>
 <script>
 $(document).ready(function(){
@@ -369,3 +369,9 @@ do_update(S) ->
 					{S, Res}
 			end
 	end.
+
+%
+
+now_bin() ->
+	{N1,N2,N3}=now(),
+	list_to_binary(integer_to_list(N1)++integer_to_list(N2)++integer_to_list(N3)).
