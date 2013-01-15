@@ -22,5 +22,5 @@
 			<<"valuation">> -> <<"Valuation">>;
 			<<"purchase_price">> -> <<"Purchase Price">>
 		end).
--define(CONF,"/usr/local/src/dbswui/src/db.conf").
+-define(CONF, "/usr/local/src/dbswui/src/db.conf").
 -define(MAXAGE, 500).
