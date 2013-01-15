@@ -4,9 +4,9 @@
 -export([start/2, stop/1]).
 
 start(_Type, Args) ->
-	[HTTP_Port,HTTPS_Port]=
+	[HTTP_Port, HTTPS_Port]=
 		case Args of
-			[] -> [7080,7443];
+			[] -> [7080, 7443];
 			Any -> Any
 		end,
 	Dispatch =
