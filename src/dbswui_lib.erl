@@ -7,8 +7,8 @@
 %
 
 escape0(S) ->
-	S1=re:replace(S,"\\\\","\\\\\\\\",[{return,binary}, global]),
-	re:replace(S1,"'","\\\\'",[{return,binary}, global]).
+	S1 = re:replace(S, "\\\\", "\\\\\\\\", [{return,binary}, global]),
+	re:replace(S1, "'", "\\\\'", [{return, binary}, global]).
 
 % Get the fields to be part of the select
 
