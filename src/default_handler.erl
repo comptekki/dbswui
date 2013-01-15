@@ -9,6 +9,5 @@ handle(Req, State) ->
 	{ok, Req3} = cowboy_req:reply(302, [], <<>>, Req2),
 	{ok, Req3, State}.
 
-
 terminate(_Req, _State) ->
        ok.
