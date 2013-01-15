@@ -28,8 +28,8 @@ handle(Req0, State) ->
 		reply(200, [],
 			  case Table of
 				  ?DB ->
-					  {Rpp, _Req} = cowboy_req:qs_val(<<"rpp">>,Req),
-					  {Offset, _Req} = cowboy_req:qs_val(<<"offset">>,Req),
+					  {Rpp, _Req} = cowboy_req:qs_val(<<"rpp">>, Req),
+					  {Offset, _Req} = cowboy_req:qs_val(<<"offset">>, Req),
 					  {N, _Req} = cowboy_req:qs_val(<<"n">>, Req),
 					  {FieldsAll, _Req} = cowboy_req:qs_vals(Req),
 					  [_,_,_,_,_|RawFields] = FieldsAll,
