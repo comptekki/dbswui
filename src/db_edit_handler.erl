@@ -16,10 +16,10 @@ init(_Transport, Req, []) ->
 
 fire_wall(Req) ->	
 	{PeerAddress, _Req}=cowboy_req:peer_addr(Req),
-	{ok, [_,{FireWallOnOff,IPAddresses},_]}=file:consult(?CONF),
+	{ok, [_, {FireWallOnOff, IPAddresses}, _]} = file:consult(?CONF),
 	case FireWallOnOff of
 		on ->
-			case lists:member(PeerAddress,IPAddresses) of
+			case lists:member(PeerAddress, IPAddresses) of
 				true ->
 					allow;
 				false ->
