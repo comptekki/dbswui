@@ -305,14 +305,14 @@ insert_pattern(Table, [{_,_}|Fields]) ->
 %
 
 insert_pattern([{Field, Val}|Fields]) ->
-	insert_pattern(Fields, <<Field/binary>>, <<"E'", (escape0(Val))/binary, "'">>).
+	insert_pattern(Fields, <<Field/binary>>, <<"E'", (trim_bin(escape0(Val)))/binary, "'">>).
 
 insert_pattern([{Field, Val}|Fields], Accf, Accv) ->
 	case Val of
 		<<>> ->
 			insert_pattern(Fields, <<Accf/binary, ",", Field/binary>>, <<Accv/binary, ", ''">>);
 		_ ->
-			insert_pattern(Fields, <<Accf/binary, ",", Field/binary>>, <<Accv/binary, ", E'", (escape0(Val))/binary, "'">>)
+			insert_pattern(Fields, <<Accf/binary, ",", Field/binary>>, <<Accv/binary, ", E'", (trim_bin(escape0(Val)))/binary, "'">>)
 	end;
 insert_pattern([], Accf, Accv) ->
 	{Accf, Accv}.
@@ -342,14 +342,14 @@ update_pattern(Table, [{Field, Val}|Fields]) ->
 %
 
 update_pattern([{Field, Val}|Fields]) ->
-	update_pattern(Fields, <<Field/binary>>, <<"E'", (escape0(Val))/binary, "'">>).
+	update_pattern(Fields, <<Field/binary>>, <<"E'", (trim_bin(escape0(Val)))/binary, "'">>).
 
 update_pattern([{Field, Val}|Fields], Accf, Accv) ->
 	case Val of
 		<<>> ->
 			update_pattern(Fields, <<Accf/binary, ",", Field/binary>>, <<Accv/binary, ", ''">>);
 		_ ->
-			update_pattern(Fields, <<Accf/binary, ",", Field/binary>>, <<Accv/binary, ", E'", (escape0(Val))/binary, "'">>)
+			update_pattern(Fields, <<Accf/binary, ",", Field/binary>>, <<Accv/binary, ", E'", (trim_bin(escape0(Val)))/binary, "'">>)
 	end;
 update_pattern([], Accf, Accv) ->
 	{Accf, Accv}.
@@ -375,3 +375,8 @@ do_update(S) ->
 now_bin() ->
 	{N1,N2,N3}=now(),
 	list_to_binary(integer_to_list(N1)++integer_to_list(N2)++integer_to_list(N3)).
+
+%
+
+trim_bin(Bin) ->
+	re:replace(Bin, "^\\s+|\\s+$", "", [{return, binary}, global]).
