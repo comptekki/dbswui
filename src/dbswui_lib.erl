@@ -126,6 +126,8 @@ rttp_main(ServerPath, Hdr) ->
 <script type=\"text/javascript\" src=\"/static/jquery.simplemodal.1.4.2.min.js\"></script>
 <script type=\"text/javascript\">
 
+var da = false;
+
 var view = true;
 var activeElement = null;
 
@@ -317,6 +319,10 @@ table(Sp, SpOffset, RowsPerPage, ServerPath, Fields, S, N) ->
 %
 
 table2(RowsPerPage, ServerPath, Fields, S, Result, Res2, N) ->
+
+    {ok, Re} = re:compile("/edit",[caseless]),
+    MatchVal = re:run(ServerPath, Re),
+
 	Count=list_to_binary(integer_to_list(length(Res2))),
 	case Count of
 		<<"0">> ->
@@ -328,9 +334,19 @@ table2(RowsPerPage, ServerPath, Fields, S, Result, Res2, N) ->
 <div class='navt'>
 ",
 (mk_nav(Count, RowsPerPage, ServerPath, S, <<"t">>))/binary,
+(case MatchVal of
+	{match, _} -> 
+		 <<"
+<br><br>
+<a href='javascript:void(0);' id='selectall'>Select All</a>
+<a href='javascript:void(0);' id='unselectall'>Un-Select All</a>
+<a href='javascript:void(0);' id='deleteall'>Delete All</a>">>;
+	 _ -> <<>>
+end)/binary,
 "
 </div>
-">>, % end of NavT
+">>,
+ % end of NavT
 
 			NavB= <<"
 
@@ -387,7 +403,6 @@ Items Found: ", Count/binary,"
 <script type='text/javascript'>
 
 $(document).ready(function() {
-
 	if ($.browser.mozilla)
         $('#range_input_view').hide()
     else 
@@ -429,6 +444,59 @@ $(document).ready(function() {
 			}
 		})
 	})
+
+$('.rheadg').click(function(){
+  if ($(this).attr('class') == 'rheadr'){
+    $(this).addClass('rheadg');
+    $(this).removeClass('rheadr');
+  }
+  else {
+    $(this).removeClass('rheadg');
+    $(this).addClass('rheadr');
+  }
+});
+
+$('.rheadr').click(function(){
+  $(this).removeClass('rheadr');
+  $(this).addClass('rheadg');
+});
+
+$(function () {
+ $('#selectall').click(function () {
+  $('.rheadg').addClass('rheadr');
+  $('.rheadg').removeClass('rheadg');
+ });
+});
+
+$(function () {
+ $('#unselectall').click(function () {
+  $('.rheadr').addClass('rheadg');
+  $('.rheadr').removeClass('rheadr');
+ });
+});
+
+$(function () {
+//blah
+    $('#deleteall').click(function () {
+        if ($('.rheadr').length>1) {
+//            da = false;
+            var ans = confirm('Are you sure you want to delete these [ ' + $('.rheadr').length +' ] records?');
+            if (ans) {
+                da = true;
+                $('.rheadr').each(
+                   function() {
+                       $('#d'+$(this).attr('id').substr(2)).click();
+                   }
+                );
+                alert('[ ' + $('.rheadr').length +' ] records were deleted...');
+            }
+        }
+        else {
+            alert('At least -- 2 -- records must be selected...');
+        }
+   }).promise().done(function() { da = false; });
+});
+
 })
 </script>
 
@@ -672,7 +740,7 @@ mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
 <table>
 <tr>
 <td colspan='9'> 
-<p style='text-align: center; text-transform: uppercase;color: #949610; font-size:1.5em'>", ?TITLE/binary, "</p>
+<p style='text-align: center; text-transorm: uppercase;color: #949610; font-size:1.5em'>", ?TITLE/binary, "</p>
 </td>
 </tr>
 </table>
@@ -747,7 +815,6 @@ mk_tab2([RowTuple|Rows],Hdrs,Fields, ServerPath) ->
 				  <<>>
 		  end,
 	Mtj=mk_tab2_js(Id, Fields, SPath, ServerPath),
-%%%%%%%%%%
 	<<Mtj/binary,
 "
 
@@ -765,6 +832,7 @@ case SPath of
 	<<"edit">> ->
 		<<"
 <script type='text/javascript'>
+
 $(document).ready(function(){
     $('#h", Id/binary,"').click(function(){
         $('#t", Id/binary, "').modal({escClose:false, closeClass:'modal-cancel', focus:false, opacity:80, overlayCss: {backgroundColor:'#555'}, persist:true});
@@ -774,10 +842,12 @@ $(document).ready(function(){
 (jsedit(Id,Fields))/binary,
 "
     });
-
+//blah
     $('#d", Id/binary, "').click(function() {
-
-        var ans = confirm ('Are you sure you want to delete this record')
+        if (da == true)
+            var ans=true;
+        else
+            var ans = confirm ('Are you sure you want to delete this record');
         if (ans) {
             $.ajax({
 		       url: '", ServerPath/binary, "',
@@ -785,13 +855,12 @@ $(document).ready(function(){
                data: 'tablename=", ?DB/binary, "&n=1&s=4&rpp=0&offset=0&id=", Id/binary, "',
                success: function(data) {
                    if (view)
-                       ajfun1()
+                       ajfun1();
                    else 
                        ajfun0();
-
-                   if (!(arguments[2].responseText.indexOf('", ?TITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
-                       alert(arguments[2].responseText)
-
+                   if (da == false)
+                       if (!(arguments[2].responseText.indexOf('", ?TITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
+                           alert(arguments[2].responseText);
 		       },
                error:function(XMLHttpRequest, textStatus, errorThrown) {
 			       alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
@@ -799,6 +868,7 @@ $(document).ready(function(){
   	        });
         
             $('#c", Id/binary, "').click()
+        
         }
     });
 
@@ -905,7 +975,7 @@ mk_tab3(First, Id, [Item|RestRow], [Hdr|RestHdrs], [{Field,Srch}|Fields], SPath)
 		  <<"edit">> ->
 			   case First of
 				   1 -> <<"
-<th style='width:50px;' rowspan='8'>
+<th id='th", Id/binary, "' style='width:50px;' rowspan='8' class='rheadg'>
   <a href='javascript:void(0)' id='h", Id/binary, "'>", Id/binary, "</a>
   <input id='d", Id/binary, "' type='button' name='d", Id/binary, "' value='Delete' class=''><br />
   <input id='s", Id/binary, "' type='button' name='s", Id/binary, "' value='Save' class='ebutton'><br />
