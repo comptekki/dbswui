@@ -476,11 +476,9 @@ $(function () {
 });
 
 $(function () {
-//blah
     $('#deleteall').click(function () {
         if ($('.rheadr').length>1) {
-//            da = false;
-            var ans = confirm('Are you sure you want to delete these [ ' + $('.rheadr').length +' ] records?');
+            var ans = confirm('Are you sure you want to delete these [ ' + $('.rheadr').length +' ] selected records?');
             if (ans) {
                 da = true;
                 $('.rheadr').each(
@@ -842,7 +840,6 @@ $(document).ready(function(){
 (jsedit(Id,Fields))/binary,
 "
     });
-//blah
     $('#d", Id/binary, "').click(function() {
         if (da == true)
             var ans=true;
