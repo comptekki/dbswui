@@ -38,3 +38,6 @@ span.hl {padding: 0 2px 0 2px; background-color:yellow;}
 .brk { clear:both; }
 .spc {padding: 0 0 10px 0;}
 .spc5 {padding: 0 0 5px 0;}
+
+.rheadg {background-color:rgba(0,150,0,0.1);}
+.rheadr {background-color:rgba(150,0,0,0.1);}
