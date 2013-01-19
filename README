@@ -3,7 +3,9 @@ database search web ui
 
 todo:
 
-none
+* When deleteing records, show progress indicator
+* Add undelete records (create table to move deleted records to)
+* Add purge deleted records
 
 How To
 
