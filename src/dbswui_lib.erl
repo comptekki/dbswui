@@ -446,19 +446,22 @@ $(document).ready(function() {
 	})
 
 $('.rheadg').click(function(){
-  if ($(this).attr('class') == 'rheadr'){
-    $(this).addClass('rheadg');
-    $(this).removeClass('rheadr');
-  }
-  else {
-    $(this).removeClass('rheadg');
-    $(this).addClass('rheadr');
-  }
+    $(this).toggleClass('rheadr rheadg');
+
+//  if ($(this).attr('class') == 'rheadr'){
+//    $(this).addClass('rheadg');
+//    $(this).removeClass('rheadr');
+//  }
+//  else {
+//    $(this).removeClass('rheadg');
+//    $(this).addClass('rheadr');
+//  }
 });
 
 $('.rheadr').click(function(){
-  $(this).removeClass('rheadr');
-  $(this).addClass('rheadg');
+    $(this).toggleClass('rheadr rheadg');
+//  $(this).removeClass('rheadr');
+//  $(this).addClass('rheadg');
 });
 
 $(function () {
