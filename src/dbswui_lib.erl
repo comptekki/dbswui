@@ -127,7 +127,7 @@ rttp_main(ServerPath, Hdr) ->
 <script type=\"text/javascript\">
 
 var da = false;
-
+var delclicked = false;
 var view = true;
 var activeElement = null;
 
@@ -446,7 +446,10 @@ $(document).ready(function() {
 	})
 
 $('.rheadg').click(function(){
-    $(this).toggleClass('rheadr rheadg');
+    if(delclicked)
+        delclicked = false;
+    else
+        $(this).toggleClass('rheadr rheadg');
 
 //  if ($(this).attr('class') == 'rheadr'){
 //    $(this).addClass('rheadg');
@@ -460,6 +463,7 @@ $('.rheadg').click(function(){
 
 $('.rheadr').click(function(){
     $(this).toggleClass('rheadr rheadg');
+
 //  $(this).removeClass('rheadr');
 //  $(this).addClass('rheadg');
 });
@@ -844,6 +848,7 @@ $(document).ready(function(){
 "
     });
     $('#d", Id/binary, "').click(function() {
+        delclicked = true;
         if (da == true)
             var ans=true;
         else
