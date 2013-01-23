@@ -448,8 +448,7 @@ $(document).ready(function() {
 $('.rheadg').click(function(){
     if(delclicked)
         delclicked = false;
-    else
-        $(this).toggleClass('rheadr rheadg');
+    $(this).toggleClass('rheadr rheadg');
 
 //  if ($(this).attr('class') == 'rheadr'){
 //    $(this).addClass('rheadg');
