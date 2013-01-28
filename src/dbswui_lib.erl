@@ -448,7 +448,8 @@ $(document).ready(function() {
 $('.rheadg').click(function(){
     if(delclicked)
         delclicked = false;
-    $(this).toggleClass('rheadr rheadg');
+    else
+        $(this).toggleClass('rheadr rheadg');
 
 //  if ($(this).attr('class') == 'rheadr'){
 //    $(this).addClass('rheadg');
@@ -484,7 +485,8 @@ $(function () {
 $(function () {
     $('#deleteall').click(function () {
         if ($('.rheadr').length>1) {
-            var ans = confirm('Are you sure you want to delete these [ ' + $('.rheadr').length +' ] selected records?');
+            deleted = $('.rheadr').length;
+            var ans = confirm('Are you sure you want to delete these [ ' + deleted +' ] selected records?');
             if (ans) {
                 da = true;
                 $('.rheadr').each(
@@ -492,7 +494,7 @@ $(function () {
                        $('#d'+$(this).attr('id').substr(2)).click();
                    }
                 );
-                alert('[ ' + $('.rheadr').length +' ] records were deleted...');
+                alert('[ ' + deleted +' ] records were deleted...');
             }
         }
         else {
