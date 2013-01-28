@@ -739,7 +739,7 @@ mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
 ",
 									   (add_rec(?TABLE, ServerPath))/binary>>;
 					   _  -> 
-					<<"<a href='https://", ?HOST, ":7443/db/edit' id='edit'>edit</a>">>
+					<<"<a href='https://", ?HOST, ":", ?HTTPSPORT, "/db/edit' id='edit'>edit</a>">>
 				   end)/binary,
 "
 <div class='brk spc'>
