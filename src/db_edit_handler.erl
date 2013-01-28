@@ -1,5 +1,5 @@
 -module(db_edit_handler).
--export([init/3, handle/2, terminate/2]).
+-export([init/3, handle/2, terminate/3]).
 
 -import(dbswui_lib, [return_top_page/2, select_fields/1, select_pattern/1, select_pattern/3, table/7, escape0/1]).
 
@@ -271,7 +271,7 @@ app_front_end(Req0, State) ->
 
 %
 	
-terminate(_Req, _State) ->
+terminate(_Reason, _Req, _State) ->
 	ok.
 %
 
