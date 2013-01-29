@@ -1,7 +1,7 @@
 -define(DBHOST, "localhost").
 -define(HOST, "localhost").
--define(HTTPPORT, 9080).
--define(HTTPSPORT, 9443).
+-define(HTTPPORT, "9080").
+-define(HTTPSPORT, "9443").
 -define(DB, <<"dbooks">>).
 -define(USERNAME, "postgres").
 -define(PASSWORD, "pguser").
