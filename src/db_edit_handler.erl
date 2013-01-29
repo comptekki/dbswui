@@ -140,7 +140,7 @@ $('#uname').focus();
 </script>
 </head>
 <body>
-<form action='/db/edit' method='post'>
+<form action='/edit' method='post'>
 <div>
   <h3>", ?TITLE/binary, " Login</h3>
 </div>
@@ -198,7 +198,7 @@ handle(Req, State) ->
 							end
 					end;
 				_ ->
-					Req1 = cowboy_req:set_resp_header(<<"Location">>, [<<"/db">>], Req),
+					Req1 = cowboy_req:set_resp_header(<<"Location">>, [<<"/">>], Req),
 					{ok, Req2} = cowboy_req:reply(302, [], <<>>, Req1),
 					{ok, Req2, State}
 			end;
