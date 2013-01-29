@@ -10,17 +10,17 @@ start(_Type, Args) ->
 			Any -> Any
 		end,
 	Dispatch =
-		[
+		cowboy_router:compile([
 		 {'_',
 		  [
-		   {[<<"db">>], db_handler, []},
-		   {[<<"db">>, <<"edit">>], db_edit_handler, []},
-		   {[<<"db">>, <<"logout">>], logout_handler, []},
-		   {[<<"static">>, '...'], cowboy_static, [{directory, "static/"}]},
+		   {["/"], db_handler, []},
+		   {["/", "edit"], db_edit_handler, []},
+		   {["/", "logout"], logout_handler, []},
+		   {"/static/[...]", cowboy_static, [{directory, "static/"}]},
 		   {'_', default_handler, []}
 		  ]
 		 }
-		],
+		]),
 	{ok, _} = 
 		cowboy:start_http(
 		  http,
