@@ -127,7 +127,10 @@ rttp_main(ServerPath, Hdr) ->
 <script type=\"text/javascript\">
 
 var da = false;
+var editclicked = false;
 var delclicked = false;
+var cancclicked = false;
+var saveclicked = false;
 var view = true;
 var activeElement = null;
 
@@ -446,26 +449,25 @@ $(document).ready(function() {
 	})
 
 $('.rheadg').click(function(){
-    if(delclicked)
+    if(editclicked || delclicked || cancclicked || saveclicked) {
+        editclicked = false;
         delclicked = false;
+        cancclicked = false;
+        saveclicked = false;
+    }
     else
         $(this).toggleClass('rheadr rheadg');
-
-//  if ($(this).attr('class') == 'rheadr'){
-//    $(this).addClass('rheadg');
-//    $(this).removeClass('rheadr');
-//  }
-//  else {
-//    $(this).removeClass('rheadg');
-//    $(this).addClass('rheadr');
-//  }
 });
 
 $('.rheadr').click(function(){
-    $(this).toggleClass('rheadr rheadg');
-
-//  $(this).removeClass('rheadr');
-//  $(this).addClass('rheadg');
+    if(editclicked || delclicked || cancclicked || saveclicked) {
+        editclicked = false;
+        delclicked = false;
+        cancclicked = false;
+        saveclicked = false;
+    }
+    else
+        $(this).toggleClass('rheadr rheadg');
 });
 
 $(function () {
@@ -841,6 +843,7 @@ case SPath of
 
 $(document).ready(function(){
     $('#h", Id/binary,"').click(function(){
+        editclicked = true;
         $('#t", Id/binary, "').modal({escClose:false, closeClass:'modal-cancel', focus:false, opacity:80, overlayCss: {backgroundColor:'#555'}, persist:true});
         $('#s", Id/binary, "').show();
         $('#c", Id/binary, "').show();
@@ -879,9 +882,7 @@ $(document).ready(function(){
     });
 
     $('#s", Id/binary, "').click(function() {
-
-        $('#s", Id/binary, "').hide();
-        $('#c", Id/binary, "').hide();
+        saveclicked = true;
 ",
 (jsedit2(Id, Fields))/binary,
 "
@@ -908,6 +909,7 @@ $(document).ready(function(){
     });
 
     $('#c", Id/binary, "').click(function() {
+        cancclicked = true;
         $('#s", Id/binary, "').hide();
         $('#c", Id/binary, "').hide();
 ",
