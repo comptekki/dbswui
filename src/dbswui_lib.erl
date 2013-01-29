@@ -262,14 +262,14 @@ js4(ServerPath) ->
     ajfun1 = function() {
 		$('#offset').val(0);
 		$.ajax({
-			url: '",ServerPath/binary, "',
+			url: '", ServerPath/binary, "',
 			type: 'GET',
 			data: 'tablename=", ?DB/binary, "&n=1&s=1", (setfields_single())/binary, ",
 			success: function(data) {
 
                 if ((arguments[2].responseText.indexOf('", ?TITLE/binary, " Login') > -1) && (arguments[2].responseText.indexOf('html') == 1)) {
                     alert('Login Expired - Please Re-Login...');
-                    location.href='",ServerPath/binary,"'
+                    location.href='", ServerPath/binary, "'
                 }
                 else {
 
@@ -323,7 +323,7 @@ table(Sp, SpOffset, RowsPerPage, ServerPath, Fields, S, N) ->
 
 table2(RowsPerPage, ServerPath, Fields, S, Result, Res2, N) ->
 
-    {ok, Re} = re:compile("/edit",[caseless]),
+    {ok, Re} = re:compile("/edit", [caseless]),
     MatchVal = re:run(ServerPath, Re),
 
 	Count=list_to_binary(integer_to_list(length(Res2))),
@@ -392,13 +392,13 @@ $(document).ready(function() {
 <option value='90'>90</option>
 <option value='100'>100</option>
 </select>
-<input id='range_input_view' type='range' name='range_input_view' min='10' max='100' value='",RowsPerPage/binary,"' step='5'>
+<input id='range_input_view' type='range' name='range_input_view' min='10' max='100' value='", RowsPerPage/binary, "' step='5'>
 </td>
 <td class='rows'>
 <span>Show <span id='range_val'>10</span> items per page</span>
 </td>
 <td>
-Items Found: ", Count/binary,"
+Items Found: ", Count/binary, "
 </td>
 </tr>
 </table>
@@ -426,14 +426,14 @@ $(document).ready(function() {
 	});
 	$('#range_input_view').click().mouseup(function() {
 		$.ajax({
-			url: '",ServerPath/binary,"',
+			url: '", ServerPath/binary, "',
 			type: 'GET',
 			data: 'tablename=", ?DB/binary, "&n=1&s=", (s_fields(S))/binary, ",
 			success: function(data) {
 
                    if (arguments[2].responseText.indexOf('", ?TITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
                        alert('Login Expired - Please Re-Login...');
-                       location.href='",ServerPath/binary,"'
+                       location.href='", ServerPath/binary, "'
                    }
                    else {
                        $('#data').html(arguments[2].responseText);
@@ -554,7 +554,7 @@ build_nav(Start, End, RowsPerPage, ServerPath, S, TB) ->
 
                    if (arguments[2].responseText.indexOf('", ?TITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
                        alert('Login Expired - Please Re-Login...');
-                       location.href='",ServerPath/binary,"'
+                       location.href='", ServerPath/binary, "'
                    }
                    else {
                        $('#data').html(arguments[2].responseText);
@@ -592,7 +592,7 @@ end)/binary,
 
                    if (arguments[2].responseText.indexOf('", ?TITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1) {
                        alert('Login Expired - Please Re-Login...');
-                       location.href='",ServerPath/binary,"'
+                       location.href='", ServerPath/binary, "'
                    }
                    else {
                        $('#data').html(arguments[2].responseText);
@@ -705,8 +705,8 @@ add_rec(First,[Hdr|RestHdrs],[Field|Fields]) ->
 <input id='i_add_rec_", Field/binary, "' class='dbinput2' name='' maxlength='", ?MAX_LENB/binary, "' value=''>
 </td>
 </tr>",
-	  (add_rec(First+1,RestHdrs,Fields))/binary>>;
-add_rec(_,[],_Fields) ->
+	  (add_rec(First+1, RestHdrs, Fields))/binary>>;
+add_rec(_, [], _Fields) ->
 	<<>>.
 
 %
@@ -724,12 +724,12 @@ setf2a([]) ->
 %
 
 mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
-    {ok, Re} = re:compile("/edit",[caseless]),
+    {ok, Re} = re:compile("/edit", [caseless]),
     MatchVal = re:run(ServerPath, Re),
     <<"
 <input id='s' type='hidden' value='0'>
-<input id='range_input' type='hidden' value='",RowsPerPage/binary,"'>
-<input id='offset' type='hidden' value='",Offset/binary,"'>",
+<input id='range_input' type='hidden' value='", RowsPerPage/binary, "'>
+<input id='offset' type='hidden' value='", Offset/binary, "'>",
 	  (case Hdr of
 			<<"1">> -> 
 			   <<>>;
@@ -784,7 +784,7 @@ mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
 <tr>
 <td class='srch'>Quick Search</td>
 <td colspan='8'>
-<input id='single_input_db' name='single_input_db' style='width:500px;' maxlength='", ?MAX_LENB/binary,"'>
+<input id='single_input_db' name='single_input_db' style='width:500px;' maxlength='", ?MAX_LENB/binary, "'>
 </td>
 </tr>
 </table>
@@ -796,8 +796,8 @@ mk_table_tab(RowsPerPage, Offset, ServerPath, Hdr) ->
 mk_input_fields([Col|Cols]) ->
                 <<
 "<div class='brk'>
-<input id='",Col/binary,"' type='text' name='", Col/binary, "' maxlength='30'>
-<span class='attribute'>", (title(Col))/binary,"</span>
+<input id='", Col/binary, "' type='text' name='", Col/binary, "' maxlength='30'>
+<span class='attribute'>", (title(Col))/binary, "</span>
 </div>
 ",(mk_input_fields(Cols))/binary>>;
 mk_input_fields([]) ->
@@ -808,15 +808,15 @@ mk_input_fields([]) ->
 mk_tab(Headers, Rows, Fields, ServerPath) ->
 	Hdrs= [<<"<th style='width:175px; text-align:right; vertical-align:top;'>", (title(X))/binary, "</th>">> || X <- Headers],
     <<"<div>",
-         (mk_tab2(Rows,Hdrs,Fields, ServerPath))/binary,
+         (mk_tab2(Rows, Hdrs, Fields, ServerPath))/binary,
    "</div>">>.
 
-mk_tab2([RowTuple|Rows],Hdrs,Fields, ServerPath) ->
+mk_tab2([RowTuple|Rows], Hdrs, Fields, ServerPath) ->
 	[Id|Row]=tuple_to_list(RowTuple),
 %	[{Field,_Srch}|_Rest]=Fields,
-	{ok, Re} = re:compile("/edit",[caseless]),
+	{ok, Re} = re:compile("/edit", [caseless]),
 	MatchVal = re:run(ServerPath, Re),
-	SPath=case MatchVal of
+	SPath = case MatchVal of
 			  {match, _} ->
 				  <<"edit">>;
 			  _  -> 
@@ -842,13 +842,13 @@ case SPath of
 <script type='text/javascript'>
 
 $(document).ready(function(){
-    $('#h", Id/binary,"').click(function(){
+    $('#h", Id/binary, "').click(function(){
         editclicked = true;
         $('#t", Id/binary, "').modal({escClose:false, closeClass:'modal-cancel', focus:false, opacity:80, overlayCss: {backgroundColor:'#555'}, persist:true});
         $('#s", Id/binary, "').show();
         $('#c", Id/binary, "').show();
 ",
-(jsedit(Id,Fields))/binary,
+(jsedit(Id, Fields))/binary,
 "
     });
     $('#d", Id/binary, "').click(function() {
@@ -913,7 +913,7 @@ $(document).ready(function(){
         $('#s", Id/binary, "').hide();
         $('#c", Id/binary, "').hide();
 ",
-(jsedit3(Id,Fields))/binary,
+(jsedit3(Id, Fields))/binary,
 "
     });
 
@@ -1052,43 +1052,43 @@ chk_dash(Any) ->
 	Any.
 
 escape(Data) ->
-	re:replace(escape2(Data),"\\#","\\\\#",[{return,list},global]).
+	re:replace(escape2(Data), "\\#", "\\\\#", [{return,list},global]).
 
 escape2(Data) ->
-	re:replace(escape3(Data),"\\$","\\\\$",[{return,list},global]).
+	re:replace(escape3(Data), "\\$", "\\\\$", [{return,list},global]).
 
 escape3(Data) ->
-	re:replace(escape4(Data),"\\&","\\\\&",[{return,list},global]).
+	re:replace(escape4(Data), "\\&", "\\\\&", [{return,list},global]).
 
 escape4(Data) ->
-	re:replace(escape5(Data),"\\(","\\\\(",[{return,list},global]).
+	re:replace(escape5(Data), "\\(", "\\\\(", [{return,list},global]).
 
 escape5(Data) ->
-	re:replace(escape6(Data),"\\)","\\\\)",[{return,list},global]).
+	re:replace(escape6(Data), "\\)", "\\\\)", [{return,list},global]).
 
 escape6(Data) ->
-	re:replace(escape7(Data),"\\*","\\\\*",[{return,list},global]).
+	re:replace(escape7(Data), "\\*", "\\\\*", [{return,list},global]).
 
 escape7(Data) ->
-	re:replace(escape8(Data),"\\+","\\\\+",[{return,list},global]).
+	re:replace(escape8(Data), "\\+", "\\\\+", [{return,list},global]).
 
 escape8(Data) ->
-	re:replace(escape9(Data),"\\.","\\\\.",[{return,list},global]).
+	re:replace(escape9(Data), "\\.", "\\\\.", [{return,list},global]).
 
 escape9(Data) ->
-	re:replace(escape10(Data),"\\?","\\\\?",[{return,list},global]).
+	re:replace(escape10(Data), "\\?", "\\\\?", [{return,list},global]).
 
 escape10(Data) ->
-	re:replace(escape11(Data),"\\[","\\\\[",[{return,list},global]).
+	re:replace(escape11(Data), "\\[", "\\\\[", [{return,list},global]).
 
 escape11(Data) ->
-	re:replace(escape12(Data),"\\^","\\\\^",[{return,list},global]).
+	re:replace(escape12(Data), "\\^", "\\\\^", [{return,list},global]).
 
 escape12(Data) ->
-	re:replace(escape13(Data),"\\|","\\\\|",[{return,list},global]).
+	re:replace(escape13(Data), "\\|", "\\\\|", [{return,list},global]).
 
 escape13(Data) ->
-	re:replace(Data,"\\\\","\\\\\\\\",[{return,list},global]).
+	re:replace(Data, "\\\\", "\\\\\\\\", [{return,list},global]).
 
 %
 
