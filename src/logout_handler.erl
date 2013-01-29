@@ -39,7 +39,7 @@ init(_Transport, Req, []) ->
 handle(Req, State) ->
 	{ok, [_, _, {_, [{Uname,_}]}]} = file:consult(?CONF),
 	Req2 = cowboy_req:set_resp_cookie(Uname, <<"">>, [{path, "/"}], Req),
-	Req3 = cowboy_req:set_resp_header(<<"Location">>, [<<"/db">>], Req2),
+	Req3 = cowboy_req:set_resp_header(<<"Location">>, [<<"/">>], Req2),
 	{ok, Req4} = cowboy_req:reply(307, [], <<>>, Req3),
 	{ok, Req4, State}.
 
