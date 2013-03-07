@@ -496,7 +496,7 @@ $(function () {
                        $('#d'+$(this).attr('id').substr(2)).click();
                    }
                 );
-                alert('[ ' + deleted +' ] records were deleted...');
+                alert('[ ' + deleted +' ] records were deleted...');                
             }
         }
         else {
@@ -865,7 +865,7 @@ $(document).ready(function(){
                success: function(data) {
                    if (view)
                        ajfun1();
-                   else 
+                   else
                        ajfun0();
                    if (da == false)
                        if (!(arguments[2].responseText.indexOf('", ?TITLE/binary, " Login') > -1 && arguments[2].responseText.indexOf('html') == 1))
