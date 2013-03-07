@@ -260,24 +260,22 @@ js4(ServerPath) ->
 	<<"
 <script type='text/javascript'>
     ajfun1 = function() {
+        activeElement=document.activeElement;
 		$('#offset').val(0);
 		$.ajax({
 			url: '", ServerPath/binary, "',
 			type: 'GET',
 			data: 'tablename=", ?DB/binary, "&n=1&s=1", (setfields_single())/binary, ",
 			success: function(data) {
-
                 if ((arguments[2].responseText.indexOf('", ?TITLE/binary, " Login') > -1) && (arguments[2].responseText.indexOf('html') == 1)) {
                     alert('Login Expired - Please Re-Login...');
                     location.href='", ServerPath/binary, "'
                 }
                 else {
-
                     $('#data').html(arguments[2].responseText);
                     if (activeElement != null)
                         activeElement.focus()
                 }
-
 		    },
 		    error:function(XMLHttpRequest, textStatus, errorThrown) {
 	 		    alert(XMLHttpRequest + ' - ' + textStatus + ' - ' + errorThrown);
@@ -364,7 +362,6 @@ end)/binary,
 <<"
 <script type='text/javascript'>
 
-var view = true;
 var activeElement = null;
 
 $(document).ready(function() {
@@ -876,9 +873,13 @@ $(document).ready(function(){
 		       }
   	        });
         
-            $('#c", Id/binary, "').click()
-        
+        //    $('#c", Id/binary, "').click();
+
         }
+        if (view)
+            $('#single_input_db').focus();
+        else
+            $('#title').focus();
     });
 
     $('#s", Id/binary, "').click(function() {
