@@ -15,7 +15,7 @@ init(_Transport, Req, []) ->
 	{ok, Req, undefined}.
 
 fire_wall(Req) ->	
-	{PeerAddress, _Req}=cowboy_req:peer_addr(Req),
+	{{PeerAddress, _Port}, _Req}=cowboy_req:peer(Req),
 	{ok, [_, {FireWallOnOff, IPAddresses}, _]} = file:consult(?CONF),
 	case FireWallOnOff of
 		on ->
@@ -210,7 +210,7 @@ handle(Req, State) ->
 
 app_front_end(Req0, State) ->
 	{ServerPath, Req1} = cowboy_req:path(Req0),
-	{Client_IP, Req2} = cowboy_req:peer_addr(Req1),
+	{{Client_IP, _Port}, Req2} = cowboy_req:peer(Req1),
 	io:format("~nIP: ~p - Date/Time: ~p~n",[Client_IP, calendar:local_time()]),
 	{S, Req3} = cowboy_req:qs_val(<<"s">>, Req2),
 	{Table, Req4} = cowboy_req:qs_val(<<"tablename">>, Req3),
