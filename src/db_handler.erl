@@ -19,7 +19,7 @@ init(_Transport, Req, []) ->
 
 handle(Req0, State) ->
 	{ServerPath, Req1} = cowboy_req:path(Req0),
-	{Client_IP, Req} = cowboy_req:peer_addr(Req1),
+	{{Client_IP, _Port}, Req} = cowboy_req:peer(Req1),
 	io:format("~nIP: ~p - Date/Time: ~p~n",[Client_IP, calendar:local_time()]),
 	{S, _Req} = cowboy_req:qs_val(<<"s">>,Req),
 	{Table, _Req} = cowboy_req:qs_val(<<"tablename">>,Req),
